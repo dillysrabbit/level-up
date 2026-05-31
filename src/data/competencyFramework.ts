@@ -91,6 +91,7 @@ const HILFSKRAFT: CompetencyCategory[] = [
     competencies: [
       { id: "hk_beobachten", label: "Beobachten von Veränderungen", hint: "Haut, Verhalten, Appetit, Allgemeinzustand wahrnehmen" },
       { id: "hk_melden", label: "Melden & Weitergeben", hint: "Auffälligkeiten zeitnah und klar an die Fachkraft berichten" },
+      { id: "hk_berichteblatt", label: "Korrekte Anwendung des Berichteblattes", hint: "Sachlich, vollständig, zeitnah und leserlich dokumentieren" },
       { id: "hk_risiken", label: "Umgang mit Risiken", hint: "Sturz-, Dekubitus-, Dehydrationszeichen erkennen und melden" },
     ],
   },
