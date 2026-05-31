@@ -58,6 +58,7 @@ const toEmployee = (r: Row): Employee => ({
 const toVisit = (r: Row): Visit => ({
   id: r.id as string,
   employeeId: r.employee_id as string,
+  visitType: (r.visit_type as Visit["visitType"]) ?? "fachkraft",
   date: r.date as string,
   location: (r.location as string) ?? "",
   occasion: (r.occasion as Visit["occasion"]) ?? "routine",
@@ -94,6 +95,7 @@ const employeeRow = (e: Employee) => ({
 const visitRow = (v: Visit) => ({
   id: v.id,
   employee_id: v.employeeId,
+  visit_type: v.visitType,
   date: v.date,
   location: v.location,
   occasion: v.occasion,
@@ -122,6 +124,7 @@ const goalRow = (g: Goal) => ({
 const COLUMN_MAP: Record<string, string> = {
   employeeId: "employee_id",
   visitId: "visit_id",
+  visitType: "visit_type",
   developmentAreas: "development_areas",
   dueDate: "due_date",
   createdAt: "created_at",

@@ -5,7 +5,7 @@ import { Avatar, EmptyState, PageHeader, StatusChip } from "../components/ui";
 import SkillMatrix from "../components/SkillMatrix";
 import GoalEditor, { type GoalDraft } from "../components/GoalEditor";
 import { categoryScores, overallAverage } from "../lib/analytics";
-import { categoryById } from "../data/competencyFramework";
+import { categoryById, frameworkFor, visitTypeForQualification } from "../data/competencyFramework";
 import { formatDate } from "../lib/format";
 import type { Goal } from "../types";
 import {
@@ -226,6 +226,7 @@ export default function EmployeeDetail() {
       {(creatingGoal || editingGoal) && (
         <GoalEditor
           initial={editingGoal ?? undefined}
+          categories={frameworkFor(visitTypeForQualification(employee.role))}
           onSave={saveGoal}
           onCancel={() => {
             setEditingGoal(null);

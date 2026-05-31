@@ -4,7 +4,7 @@ import { useStore } from "../store/store";
 import { EmptyState, PageHeader } from "../components/ui";
 import SkillMatrix from "../components/SkillMatrix";
 import { categoryScores } from "../lib/analytics";
-import { findCompetency, LEVEL_SCALE } from "../data/competencyFramework";
+import { findCompetency, LEVEL_SCALE, visitTypeLabel } from "../data/competencyFramework";
 import { formatDate } from "../lib/format";
 import {
   LocationIcon,
@@ -61,11 +61,14 @@ export default function VisitDetail() {
         subtitle={`${employee?.name ?? "Unbekannt"} · ${OCCASION_LABELS[visit.occasion] ?? visit.occasion}`}
       />
 
-      {visit.location && (
-        <p className="flex items-center gap-1.5 text-sm text-slate-500">
-          <LocationIcon size={15} /> {visit.location}
-        </p>
-      )}
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="chip bg-brand-50 text-brand-700">{visitTypeLabel(visit.visitType)}</span>
+        {visit.location && (
+          <span className="flex items-center gap-1.5 text-sm text-slate-500">
+            <LocationIcon size={15} /> {visit.location}
+          </span>
+        )}
+      </div>
 
       {visit.ratings.length > 0 && (
         <section className="card p-4">

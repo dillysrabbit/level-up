@@ -28,10 +28,15 @@ export interface CompetencyRating {
 
 export type VisitOccasion = "routine" | "einarbeitung" | "anlassbezogen" | "jahresgespraech";
 
+/** Zielgruppe der Visite – bestimmt den Kompetenzkatalog. */
+export type VisitType = "fachkraft" | "hilfskraft";
+
 /** Eine durchgeführte Mitarbeitervisite. */
 export interface Visit {
   id: ID;
   employeeId: ID;
+  /** Visiten-Typ (Kompetenzkatalog) */
+  visitType: VisitType;
   /** ISO-Datum der Visite */
   date: string;
   /** Ort / Setting der Beobachtung */

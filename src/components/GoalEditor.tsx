@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { COMPETENCY_FRAMEWORK } from "../data/competencyFramework";
+import type { CompetencyCategory } from "../data/competencyFramework";
 import type { Goal, GoalStatus } from "../types";
 
 export interface GoalDraft {
@@ -13,15 +13,17 @@ export interface GoalDraft {
 
 export default function GoalEditor({
   initial,
+  categories,
   onSave,
   onCancel,
 }: {
   initial?: Goal;
+  categories: CompetencyCategory[];
   onSave: (draft: GoalDraft) => void;
   onCancel: () => void;
 }) {
   const [title, setTitle] = useState(initial?.title ?? "");
-  const [category, setCategory] = useState(initial?.category ?? COMPETENCY_FRAMEWORK[0].id);
+  const [category, setCategory] = useState(initial?.category ?? categories[0]?.id ?? "");
   const [measures, setMeasures] = useState(initial?.measures ?? "");
   const [dueDate, setDueDate] = useState(initial?.dueDate ?? "");
   const [status, setStatus] = useState<GoalStatus>(initial?.status ?? "offen");
@@ -54,7 +56,7 @@ export default function GoalEditor({
           <div>
             <label className="label">Kompetenzbereich</label>
             <select className="input" value={category} onChange={(e) => setCategory(e.target.value)}>
-              {COMPETENCY_FRAMEWORK.map((c) => (
+              {categories.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.label}
                 </option>

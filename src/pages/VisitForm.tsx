@@ -2,9 +2,14 @@ import { useState, type ReactNode } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useStore } from "../store/store";
 import { PageHeader } from "../components/ui";
-import { COMPETENCY_FRAMEWORK, LEVEL_SCALE } from "../data/competencyFramework";
+import {
+  frameworkFor,
+  LEVEL_SCALE,
+  VISIT_TYPES,
+  visitTypeForQualification,
+} from "../data/competencyFramework";
 import { todayISO } from "../lib/format";
-import type { CompetencyLevel, CompetencyRating, VisitOccasion } from "../types";
+import type { CompetencyLevel, CompetencyRating, VisitOccasion, VisitType } from "../types";
 import {
   TalkIcon,
   StrengthIcon,
@@ -26,7 +31,11 @@ export default function VisitForm() {
   const navigate = useNavigate();
   const { data, addVisit } = useStore();
 
+  const initialEmployee = employeeId ? data.employees.find((e) => e.id === employeeId) : undefined;
   const [selectedEmployee, setSelectedEmployee] = useState(employeeId ?? "");
+  const [visitType, setVisitType] = useState<VisitType>(
+    visitTypeForQualification(initialEmployee?.role),
+  );
   const [date, setDate] = useState(todayISO());
   const [location, setLocation] = useState("");
   const [occasion, setOccasion] = useState<VisitOccasion>("routine");
@@ -37,6 +46,21 @@ export default function VisitForm() {
   const [ratings, setRatings] = useState<Record<string, CompetencyLevel>>({});
 
   const canSave = selectedEmployee !== "";
+  const framework = frameworkFor(visitType);
+
+  // Visiten-Typ wechseln: Bewertungen verwerfen (anderer Kompetenzkatalog).
+  function changeType(type: VisitType) {
+    if (type === visitType) return;
+    setVisitType(type);
+    setRatings({});
+  }
+
+  // Bei Mitarbeiterwechsel den Typ automatisch aus der Qualifikation ableiten.
+  function changeEmployee(id: string) {
+    setSelectedEmployee(id);
+    const emp = data.employees.find((e) => e.id === id);
+    if (emp) changeType(visitTypeForQualification(emp.role));
+  }
 
   function setRating(competencyId: string, level: CompetencyLevel) {
     setRatings((prev) => {
@@ -56,6 +80,7 @@ export default function VisitForm() {
     }));
     const visit = addVisit({
       employeeId: selectedEmployee,
+      visitType,
       date,
       location: location.trim(),
       occasion,
@@ -92,7 +117,7 @@ export default function VisitForm() {
           <select
             className="input"
             value={selectedEmployee}
-            onChange={(e) => setSelectedEmployee(e.target.value)}
+            onChange={(e) => changeEmployee(e.target.value)}
             disabled={!!employeeId}
           >
             <option value="">– bitte wählen –</option>
@@ -104,6 +129,32 @@ export default function VisitForm() {
                 </option>
               ))}
           </select>
+        </div>
+
+        <div>
+          <label className="label">Visiten-Typ</label>
+          <div className="grid grid-cols-2 gap-2">
+            {VISIT_TYPES.map((t) => {
+              const active = visitType === t.id;
+              return (
+                <button
+                  key={t.id}
+                  type="button"
+                  onClick={() => changeType(t.id)}
+                  className={`rounded-xl border px-3 py-2.5 text-sm font-semibold transition ${
+                    active
+                      ? "border-brand-600 bg-brand-600 text-white shadow-sm"
+                      : "border-slate-200 bg-white text-slate-500 hover:border-brand-300"
+                  }`}
+                >
+                  {t.label}
+                </button>
+              );
+            })}
+          </div>
+          <p className="mt-1.5 text-xs text-slate-400">
+            Automatisch nach Qualifikation vorgewählt – bei Bedarf änderbar.
+          </p>
         </div>
 
         <div className="grid grid-cols-2 gap-3">
@@ -188,7 +239,7 @@ export default function VisitForm() {
           {LEVEL_SCALE[5].label}). Erneutes Tippen entfernt die Bewertung.
         </p>
         <div className="space-y-5">
-          {COMPETENCY_FRAMEWORK.map((category) => (
+          {framework.map((category) => (
             <div key={category.id}>
               <p className="mb-2.5 text-xs font-semibold uppercase tracking-wider text-brand-600">
                 {category.label}

@@ -1,4 +1,4 @@
-import { COMPETENCY_FRAMEWORK } from "../data/competencyFramework";
+import { frameworkFor } from "../data/competencyFramework";
 import type { Visit } from "../types";
 
 export interface CategoryScore {
@@ -12,7 +12,8 @@ export interface CategoryScore {
 
 /** Berechnet je Kompetenz-Kategorie den Durchschnitt aus den Bewertungen einer Visite. */
 export function categoryScores(visit: Visit | undefined): CategoryScore[] {
-  return COMPETENCY_FRAMEWORK.map((category) => {
+  const framework = frameworkFor(visit?.visitType ?? "fachkraft");
+  return framework.map((category) => {
     const ids = new Set(category.competencies.map((c) => c.id));
     const levels = (visit?.ratings ?? [])
       .filter((r) => ids.has(r.competencyId))
