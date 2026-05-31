@@ -15,6 +15,7 @@ import {
   TrendIcon,
   TrashIcon,
   SearchIcon,
+  DownloadIcon,
 } from "../components/icons";
 
 const OCCASION_LABELS: Record<string, string> = {
@@ -117,6 +118,16 @@ export default function VisitDetail() {
           </div>
         </section>
       )}
+
+      <button
+        className="btn-secondary w-full"
+        onClick={async () => {
+          const { exportVisitPdf } = await import("../lib/pdf");
+          exportVisitPdf(visit, employee);
+        }}
+      >
+        <DownloadIcon size={17} strokeWidth={2} /> Als PDF exportieren
+      </button>
 
       <div className="flex gap-2">
         {employee && (
