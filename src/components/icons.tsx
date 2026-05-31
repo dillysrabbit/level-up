@@ -1,0 +1,28 @@
+// Zentrale, semantische Icon-Sammlung auf Basis von lucide-react.
+// Minimalistische Line-Icons – ein einheitlicher Strich statt bunter Emojis.
+export {
+  House as HomeIcon,
+  Users as TeamIcon,
+  ClipboardList as VisitIcon,
+  Database as DataIcon,
+  Plus as PlusIcon,
+  ArrowLeft as BackIcon,
+  ChevronRight as ChevronRightIcon,
+  Search as SearchIcon,
+  Target as GoalIcon,
+  TrendingUp as TrendIcon,
+  CircleCheck as StrengthIcon,
+  Sprout as GrowthIcon,
+  MessageSquareText as TalkIcon,
+  ShieldCheck as PrivacyIcon,
+  Download as DownloadIcon,
+  Upload as UploadIcon,
+  Trash2 as TrashIcon,
+  Pencil as EditIcon,
+  CalendarDays as CalendarIcon,
+  MapPin as LocationIcon,
+  User as UserIcon,
+  CircleAlert as AlertIcon,
+  Inbox as EmptyIcon,
+  Check as CheckIcon,
+} from "lucide-react";

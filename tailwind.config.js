@@ -18,7 +18,11 @@ export default {
         },
       },
       fontFamily: {
-        sans: ["system-ui", "Segoe UI", "Roboto", "Helvetica", "Arial", "sans-serif"],
+        sans: ['"Inter Variable"', "Inter", "system-ui", "Segoe UI", "Roboto", "sans-serif"],
+      },
+      boxShadow: {
+        soft: "0 1px 2px 0 rgb(15 23 42 / 0.04), 0 1px 3px 0 rgb(15 23 42 / 0.06)",
+        card: "0 1px 3px 0 rgb(15 23 42 / 0.06), 0 8px 24px -12px rgb(15 23 42 / 0.12)",
       },
     },
   },

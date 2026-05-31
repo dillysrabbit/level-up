@@ -8,6 +8,15 @@ import { categoryScores, overallAverage } from "../lib/analytics";
 import { categoryById } from "../data/competencyFramework";
 import { formatDate } from "../lib/format";
 import type { Goal } from "../types";
+import {
+  VisitIcon,
+  EditIcon,
+  TrendIcon,
+  PlusIcon,
+  ChevronRightIcon,
+  TrashIcon,
+  SearchIcon,
+} from "../components/icons";
 
 export default function EmployeeDetail() {
   const { id } = useParams();
@@ -22,7 +31,7 @@ export default function EmployeeDetail() {
   if (!employee) {
     return (
       <EmptyState
-        icon="🔍"
+        icon={<SearchIcon size={26} strokeWidth={1.7} />}
         title="Mitarbeiter:in nicht gefunden"
         action={
           <Link to="/mitarbeiter" className="btn-primary">
@@ -57,17 +66,23 @@ export default function EmployeeDetail() {
   }
 
   return (
-    <div className="space-y-6">
-      <PageHeader title={employee.name} subtitle={`${employee.role}${employee.area ? ` · ${employee.area}` : ""}`} />
+    <div className="space-y-7">
+      <PageHeader
+        title={employee.name}
+        subtitle={`${employee.role}${employee.area ? ` · ${employee.area}` : ""}`}
+      />
 
       <div className="card flex items-center gap-4 p-4">
         <Avatar name={employee.name} size="lg" />
-        <div className="min-w-0 flex-1 text-sm text-slate-600">
+        <div className="min-w-0 flex-1 space-y-0.5 text-sm text-slate-500">
           {employee.startDate && <p>Beschäftigt seit {formatDate(employee.startDate)}</p>}
-          <p>{visits.length} Visiten · {goals.filter((g) => g.status !== "erreicht").length} offene Ziele</p>
+          <p>
+            {visits.length} Visiten · {goals.filter((g) => g.status !== "erreicht").length} offene
+            Ziele
+          </p>
           {avg !== null && (
-            <p className="mt-1 font-medium text-slate-800">
-              Aktuelles Niveau: {avg.toFixed(1)} / 5
+            <p className="flex items-center gap-1.5 pt-1 font-semibold text-slate-800">
+              <TrendIcon size={16} className="text-brand-500" /> Niveau {avg.toFixed(1)} / 5
             </p>
           )}
         </div>
@@ -75,15 +90,15 @@ export default function EmployeeDetail() {
 
       <div className="flex gap-2">
         <Link to={`/visite/neu/${employee.id}`} className="btn-primary flex-1">
-          📋 Neue Visite
+          <VisitIcon size={18} strokeWidth={2} /> Neue Visite
         </Link>
         <Link to={`/mitarbeiter/${employee.id}/bearbeiten`} className="btn-secondary">
-          Bearbeiten
+          <EditIcon size={17} strokeWidth={2} /> Bearbeiten
         </Link>
       </div>
 
       {employee.notes && (
-        <div className="card p-4 text-sm text-slate-600">
+        <div className="card p-4 text-sm leading-relaxed text-slate-600">
           <p className="mb-1 font-semibold text-slate-700">Notizen</p>
           {employee.notes}
         </div>
@@ -91,8 +106,8 @@ export default function EmployeeDetail() {
 
       {/* Skill-Matrix */}
       <section>
-        <h3 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-500">
-          Kompetenzprofil {latestVisit && `(${formatDate(latestVisit.date)})`}
+        <h3 className="section-title">
+          Kompetenzprofil {latestVisit && `· ${formatDate(latestVisit.date)}`}
         </h3>
         {latestVisit ? (
           <div className="card p-4">
@@ -100,7 +115,7 @@ export default function EmployeeDetail() {
           </div>
         ) : (
           <EmptyState
-            icon="📊"
+            icon={<TrendIcon size={26} strokeWidth={1.7} />}
             title="Noch kein Kompetenzprofil"
             hint="Führe eine Visite durch, um die erste Standortbestimmung zu erfassen."
           />
@@ -109,12 +124,13 @@ export default function EmployeeDetail() {
 
       {/* Ziele */}
       <section>
-        <div className="mb-2 flex items-center justify-between">
-          <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
-            Entwicklungsziele
-          </h3>
-          <button className="btn-ghost px-2 py-1 text-sm text-brand-600" onClick={() => setCreatingGoal(true)}>
-            + Ziel
+        <div className="mb-2.5 flex items-center justify-between">
+          <h3 className="section-title mb-0">Entwicklungsziele</h3>
+          <button
+            className="inline-flex items-center gap-1 text-sm font-semibold text-brand-600 transition hover:text-brand-700"
+            onClick={() => setCreatingGoal(true)}
+          >
+            <PlusIcon size={16} strokeWidth={2.2} /> Ziel
           </button>
         </div>
         {goals.length === 0 ? (
@@ -126,29 +142,37 @@ export default function EmployeeDetail() {
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
                     <p className="font-semibold text-slate-800">{g.title}</p>
-                    <p className="text-xs text-slate-500">
+                    <p className="mt-0.5 text-xs text-slate-500">
                       {categoryById(g.category)?.label ?? g.category}
                       {g.dueDate ? ` · bis ${formatDate(g.dueDate)}` : ""}
                     </p>
                   </div>
                   <StatusChip status={g.status} />
                 </div>
-                {g.measures && <p className="mt-2 text-sm text-slate-600">{g.measures}</p>}
-                <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-slate-100">
-                  <div
-                    className="h-full rounded-full bg-brand-500 transition-all"
-                    style={{ width: `${g.progress}%` }}
-                  />
+                {g.measures && (
+                  <p className="mt-2 text-sm leading-relaxed text-slate-600">{g.measures}</p>
+                )}
+                <div className="mt-3 flex items-center gap-3">
+                  <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-slate-100">
+                    <div
+                      className="h-full rounded-full bg-brand-500 transition-all"
+                      style={{ width: `${g.progress}%` }}
+                    />
+                  </div>
+                  <span className="text-xs tabular-nums text-slate-400">{g.progress}%</span>
                 </div>
-                <div className="mt-2 flex justify-end gap-3 text-xs">
-                  <button className="text-brand-600" onClick={() => setEditingGoal(g)}>
-                    Bearbeiten
+                <div className="mt-3 flex justify-end gap-4 text-xs font-medium">
+                  <button
+                    className="inline-flex items-center gap-1 text-slate-500 transition hover:text-brand-600"
+                    onClick={() => setEditingGoal(g)}
+                  >
+                    <EditIcon size={14} /> Bearbeiten
                   </button>
                   <button
-                    className="text-red-500"
+                    className="inline-flex items-center gap-1 text-slate-500 transition hover:text-red-600"
                     onClick={() => confirm("Ziel löschen?") && deleteGoal(g.id)}
                   >
-                    Löschen
+                    <TrashIcon size={14} /> Löschen
                   </button>
                 </div>
               </div>
@@ -159,9 +183,7 @@ export default function EmployeeDetail() {
 
       {/* Visiten-Historie */}
       <section>
-        <h3 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-500">
-          Visiten-Historie
-        </h3>
+        <h3 className="section-title">Visiten-Historie</h3>
         {visits.length === 0 ? (
           <p className="px-1 text-sm text-slate-400">Noch keine Visiten dokumentiert.</p>
         ) : (
@@ -169,7 +191,14 @@ export default function EmployeeDetail() {
             {visits.map((v) => {
               const vAvg = overallAverage(v);
               return (
-                <Link key={v.id} to={`/visite/${v.id}`} className="card flex items-center gap-3 px-4 py-3">
+                <Link
+                  key={v.id}
+                  to={`/visite/${v.id}`}
+                  className="card flex items-center gap-3 px-4 py-3 transition hover:shadow-card"
+                >
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
+                    <VisitIcon size={18} strokeWidth={2} />
+                  </div>
                   <div className="min-w-0 flex-1">
                     <p className="font-medium text-slate-800">{formatDate(v.date)}</p>
                     <p className="truncate text-xs text-slate-500">
@@ -179,7 +208,7 @@ export default function EmployeeDetail() {
                   {vAvg !== null && (
                     <span className="chip bg-brand-50 text-brand-700">{vAvg.toFixed(1)}</span>
                   )}
-                  <span className="text-slate-300">›</span>
+                  <ChevronRightIcon size={18} className="shrink-0 text-slate-300" />
                 </Link>
               );
             })}
@@ -187,8 +216,11 @@ export default function EmployeeDetail() {
         )}
       </section>
 
-      <button className="btn-danger w-full" onClick={handleDelete}>
-        Mitarbeiter:in löschen
+      <button
+        className="btn-danger w-full"
+        onClick={handleDelete}
+      >
+        <TrashIcon size={16} /> Mitarbeiter:in löschen
       </button>
 
       {(creatingGoal || editingGoal) && (
