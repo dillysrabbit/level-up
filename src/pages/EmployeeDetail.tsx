@@ -19,6 +19,7 @@ import {
   ChevronRightIcon,
   TrashIcon,
   SearchIcon,
+  DownloadIcon,
 } from "../components/icons";
 
 export default function EmployeeDetail() {
@@ -251,6 +252,18 @@ export default function EmployeeDetail() {
           </div>
         )}
       </section>
+
+      {visits.length > 0 && (
+        <button
+          className="btn-secondary w-full"
+          onClick={async () => {
+            const { exportEmployeePdf } = await import("../lib/pdf");
+            exportEmployeePdf(employee, visits);
+          }}
+        >
+          <DownloadIcon size={17} strokeWidth={2} /> Gesamtbericht als PDF
+        </button>
+      )}
 
       <button
         className="btn-danger w-full"
