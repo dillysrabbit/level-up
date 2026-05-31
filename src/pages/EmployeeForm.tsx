@@ -2,14 +2,7 @@ import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useStore } from "../store/store";
 import { PageHeader } from "../components/ui";
-
-const ROLE_SUGGESTIONS = [
-  "Examinierte Pflegefachkraft",
-  "Pflegehelfer:in",
-  "Auszubildende:r",
-  "Pflegehilfskraft",
-  "Praktikant:in",
-];
+import { DEFAULT_QUALIFICATION, QUALIFICATIONS } from "../data/qualifications";
 
 export default function EmployeeForm() {
   const { id } = useParams();
@@ -18,10 +11,13 @@ export default function EmployeeForm() {
 
   const existing = id ? getEmployee(id) : undefined;
   const [name, setName] = useState(existing?.name ?? "");
-  const [role, setRole] = useState(existing?.role ?? ROLE_SUGGESTIONS[0]);
+  const [role, setRole] = useState(existing?.role ?? DEFAULT_QUALIFICATION);
   const [area, setArea] = useState(existing?.area ?? "");
   const [startDate, setStartDate] = useState(existing?.startDate ?? "");
   const [notes, setNotes] = useState(existing?.notes ?? "");
+
+  // Falls ein bestehender Wert nicht zu den QS-Stufen passt, bleibt er als Option erhalten.
+  const isKnownQualification = QUALIFICATIONS.some((q) => q.label === role);
 
   const canSave = name.trim().length > 0;
 
@@ -55,18 +51,15 @@ export default function EmployeeForm() {
         </div>
 
         <div>
-          <label className="label">Qualifikation / Rolle</label>
-          <input
-            className="input"
-            list="roles"
-            value={role}
-            onChange={(e) => setRole(e.target.value)}
-          />
-          <datalist id="roles">
-            {ROLE_SUGGESTIONS.map((r) => (
-              <option key={r} value={r} />
+          <label className="label">Qualifikationsniveau</label>
+          <select className="input" value={role} onChange={(e) => setRole(e.target.value)}>
+            {QUALIFICATIONS.map((q) => (
+              <option key={q.id} value={q.label}>
+                {q.label}
+              </option>
             ))}
-          </datalist>
+            {!isKnownQualification && <option value={role}>{role}</option>}
+          </select>
         </div>
 
         <div>
