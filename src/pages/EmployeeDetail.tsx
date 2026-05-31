@@ -3,8 +3,9 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { useStore } from "../store/store";
 import { Avatar, EmptyState, PageHeader, StatusChip } from "../components/ui";
 import SkillMatrix from "../components/SkillMatrix";
+import TrendChart from "../components/TrendChart";
 import GoalEditor, { type GoalDraft } from "../components/GoalEditor";
-import { categoryScores, overallAverage } from "../lib/analytics";
+import { categoryScores, overallAverage, averageTrend } from "../lib/analytics";
 import { categoryById, frameworkFor, visitTypeForQualification } from "../data/competencyFramework";
 import { formatDate } from "../lib/format";
 import type { Goal } from "../types";
@@ -47,6 +48,7 @@ export default function EmployeeDetail() {
   const latestVisit = visits[0];
   const scores = categoryScores(latestVisit);
   const avg = overallAverage(latestVisit);
+  const trend = averageTrend(visits);
 
   function handleDelete() {
     if (confirm(`„${employee!.name}" und alle zugehörigen Visiten & Ziele wirklich löschen?`)) {
@@ -121,6 +123,16 @@ export default function EmployeeDetail() {
           />
         )}
       </section>
+
+      {/* Kompetenz-Verlauf */}
+      {visits.length > 0 && (
+        <section>
+          <h3 className="section-title">Kompetenz-Verlauf</h3>
+          <div className="card p-4">
+            <TrendChart points={trend} />
+          </div>
+        </section>
+      )}
 
       {/* Ziele */}
       <section>
