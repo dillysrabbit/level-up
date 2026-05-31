@@ -2,6 +2,7 @@ import { useState, type ReactNode } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useStore } from "../store/store";
 import { PageHeader } from "../components/ui";
+import ScaleLegend from "../components/ScaleLegend";
 import {
   frameworkFor,
   LEVEL_SCALE,
@@ -234,10 +235,12 @@ export default function VisitForm() {
         <h3 className="flex items-center gap-2 font-semibold text-slate-800">
           <TrendIcon size={18} className="text-brand-500" /> Kompetenz-Check
         </h3>
-        <p className="mb-4 mt-1 text-xs leading-relaxed text-slate-500">
-          Optionale Standortbestimmung. Tippe auf eine Stufe (1 = {LEVEL_SCALE[1].label}, 5 ={" "}
-          {LEVEL_SCALE[5].label}). Erneutes Tippen entfernt die Bewertung.
+        <p className="mb-3 mt-1 text-xs leading-relaxed text-slate-500">
+          Optionale Standortbestimmung. Tippe auf eine Stufe, erneutes Tippen entfernt die Bewertung.
         </p>
+        <div className="mb-4">
+          <ScaleLegend />
+        </div>
         <div className="space-y-5">
           {framework.map((category) => (
             <div key={category.id}>

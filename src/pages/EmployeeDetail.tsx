@@ -4,8 +4,10 @@ import { useStore } from "../store/store";
 import { Avatar, EmptyState, PageHeader, StatusChip } from "../components/ui";
 import SkillMatrix from "../components/SkillMatrix";
 import TrendChart from "../components/TrendChart";
+import DimensionTrendChart from "../components/DimensionTrendChart";
+import ScaleLegend from "../components/ScaleLegend";
 import GoalEditor, { type GoalDraft } from "../components/GoalEditor";
-import { categoryScores, overallAverage, averageTrend } from "../lib/analytics";
+import { categoryScores, overallAverage, averageTrend, dimensionTrends } from "../lib/analytics";
 import { categoryById, frameworkFor, visitTypeForQualification } from "../data/competencyFramework";
 import { formatDate } from "../lib/format";
 import type { Goal } from "../types";
@@ -28,6 +30,7 @@ export default function EmployeeDetail() {
   const employee = id ? getEmployee(id) : undefined;
   const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
   const [creatingGoal, setCreatingGoal] = useState(false);
+  const [trendMode, setTrendMode] = useState<"gesamt" | "dimensionen">("gesamt");
 
   if (!employee) {
     return (
@@ -49,6 +52,7 @@ export default function EmployeeDetail() {
   const scores = categoryScores(latestVisit);
   const avg = overallAverage(latestVisit);
   const trend = averageTrend(visits);
+  const dimTrend = dimensionTrends(visits);
 
   function handleDelete() {
     if (confirm(`„${employee!.name}" und alle zugehörigen Visiten & Ziele wirklich löschen?`)) {
@@ -112,8 +116,9 @@ export default function EmployeeDetail() {
           Kompetenzprofil {latestVisit && `· ${formatDate(latestVisit.date)}`}
         </h3>
         {latestVisit ? (
-          <div className="card p-4">
+          <div className="card space-y-4 p-4">
             <SkillMatrix scores={scores} />
+            <ScaleLegend />
           </div>
         ) : (
           <EmptyState
@@ -127,9 +132,28 @@ export default function EmployeeDetail() {
       {/* Kompetenz-Verlauf */}
       {visits.length > 0 && (
         <section>
-          <h3 className="section-title">Kompetenz-Verlauf</h3>
+          <div className="mb-2.5 flex items-center justify-between gap-2">
+            <h3 className="section-title mb-0">Kompetenz-Verlauf</h3>
+            <div className="flex rounded-lg bg-slate-100 p-0.5 text-xs font-semibold">
+              {(["gesamt", "dimensionen"] as const).map((m) => (
+                <button
+                  key={m}
+                  onClick={() => setTrendMode(m)}
+                  className={`rounded-md px-2.5 py-1 transition ${
+                    trendMode === m ? "bg-white text-brand-600 shadow-sm" : "text-slate-500"
+                  }`}
+                >
+                  {m === "gesamt" ? "Gesamt" : "Dimensionen"}
+                </button>
+              ))}
+            </div>
+          </div>
           <div className="card p-4">
-            <TrendChart points={trend} />
+            {trendMode === "gesamt" ? (
+              <TrendChart points={trend} />
+            ) : (
+              <DimensionTrendChart trend={dimTrend} />
+            )}
           </div>
         </section>
       )}

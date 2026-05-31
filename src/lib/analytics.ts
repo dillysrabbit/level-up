@@ -44,3 +44,41 @@ export function averageTrend(visits: Visit[]): { date: string; average: number }
     .map((v) => ({ date: v.date, average: overallAverage(v) }))
     .filter((p): p is { date: string; average: number } => p.average !== null);
 }
+
+export interface DimensionTrend {
+  /** Zeitachse (Visitendaten, chronologisch aufsteigend) */
+  dates: string[];
+  series: { categoryId: string; label: string; values: (number | null)[] }[];
+}
+
+/** Verlauf je Kompetenz-Dimension: pro Kategorie eine Linie über die Zeit. */
+export function dimensionTrends(visits: Visit[]): DimensionTrend {
+  const sorted = [...visits]
+    .filter((v) => v.ratings.length > 0)
+    .sort((a, b) => a.date.localeCompare(b.date));
+  const dates = sorted.map((v) => v.date);
+
+  // Kategorien in Framework-Reihenfolge sammeln (über alle Visiten hinweg).
+  const order: { id: string; label: string }[] = [];
+  const seen = new Set<string>();
+  const scoresByVisit = sorted.map((v) => categoryScores(v));
+  for (const scores of scoresByVisit) {
+    for (const s of scores) {
+      if (!seen.has(s.categoryId)) {
+        seen.add(s.categoryId);
+        order.push({ id: s.categoryId, label: s.label });
+      }
+    }
+  }
+
+  const series = order.map((o) => ({
+    categoryId: o.id,
+    label: o.label,
+    values: scoresByVisit.map((scores) => {
+      const s = scores.find((c) => c.categoryId === o.id);
+      return s ? s.average : null;
+    }),
+  }));
+
+  return { dates, series };
+}
