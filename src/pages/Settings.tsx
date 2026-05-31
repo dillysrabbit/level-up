@@ -7,10 +7,22 @@ import { PrivacyIcon, DownloadIcon, UploadIcon, TrashIcon, UserIcon } from "../c
 
 export default function Settings() {
   const { data, replaceAll, resetAll } = useStore();
-  const { session, signOut } = useAuth();
+  const { session, signOut, updatePassword } = useAuth();
   const fileRef = useRef<HTMLInputElement>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  const [pwMessage, setPwMessage] = useState<string | null>(null);
+
+  async function handlePasswordChange(e: React.FormEvent) {
+    e.preventDefault();
+    if (newPassword.length < 6) return;
+    setBusy(true);
+    const { error } = await updatePassword(newPassword);
+    setBusy(false);
+    setNewPassword("");
+    setPwMessage(error ? `Fehler: ${error}` : "Passwort geändert.");
+  }
 
   async function handleImport(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -62,6 +74,25 @@ export default function Settings() {
           Abmelden
         </button>
       </div>
+
+      <form onSubmit={handlePasswordChange} className="card space-y-3 p-4">
+        <p className="text-sm font-semibold text-slate-800">Passwort ändern</p>
+        <input
+          type="password"
+          className="input"
+          value={newPassword}
+          onChange={(e) => setNewPassword(e.target.value)}
+          placeholder="Neues Passwort (mind. 6 Zeichen)"
+          autoComplete="new-password"
+          minLength={6}
+        />
+        <button type="submit" className="btn-secondary w-full" disabled={busy || newPassword.length < 6}>
+          Passwort aktualisieren
+        </button>
+        {pwMessage && (
+          <p className="rounded-xl bg-brand-50 px-3 py-2 text-sm text-brand-700">{pwMessage}</p>
+        )}
+      </form>
 
       <div className="card flex gap-3 p-4 text-sm leading-relaxed text-slate-600">
         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
