@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useStore } from "../store/store";
 import { PageHeader } from "../components/ui";
 import { DEFAULT_QUALIFICATION, QUALIFICATIONS } from "../data/qualifications";
+import { AREAS, DEFAULT_AREA } from "../data/areas";
 
 export default function EmployeeForm() {
   const { id } = useParams();
@@ -12,19 +13,19 @@ export default function EmployeeForm() {
   const existing = id ? getEmployee(id) : undefined;
   const [name, setName] = useState(existing?.name ?? "");
   const [role, setRole] = useState(existing?.role ?? DEFAULT_QUALIFICATION);
-  const [area, setArea] = useState(existing?.area ?? "");
-  const [startDate, setStartDate] = useState(existing?.startDate ?? "");
+  const [area, setArea] = useState(existing?.area || DEFAULT_AREA);
   const [notes, setNotes] = useState(existing?.notes ?? "");
 
-  // Falls ein bestehender Wert nicht zu den QS-Stufen passt, bleibt er als Option erhalten.
+  // Falls ein bestehender Wert nicht zu den Vorgaben passt, bleibt er als Option erhalten.
   const isKnownQualification = QUALIFICATIONS.some((q) => q.label === role);
+  const isKnownArea = AREAS.includes(area);
 
   const canSave = name.trim().length > 0;
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!canSave) return;
-    const payload = { name: name.trim(), role, area: area.trim(), startDate, notes: notes.trim() };
+    const payload = { name: name.trim(), role, area, notes: notes.trim() };
     if (existing) {
       updateEmployee(existing.id, payload);
       navigate(`/mitarbeiter/${existing.id}`);
@@ -63,23 +64,15 @@ export default function EmployeeForm() {
         </div>
 
         <div>
-          <label className="label">Wohnbereich / Station / Tour</label>
-          <input
-            className="input"
-            value={area}
-            onChange={(e) => setArea(e.target.value)}
-            placeholder="z.B. Wohnbereich 2"
-          />
-        </div>
-
-        <div>
-          <label className="label">Beschäftigt seit</label>
-          <input
-            type="date"
-            className="input"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-          />
+          <label className="label">Wohnbereich</label>
+          <select className="input" value={area} onChange={(e) => setArea(e.target.value)}>
+            {AREAS.map((a) => (
+              <option key={a} value={a}>
+                {a}
+              </option>
+            ))}
+            {!isKnownArea && area && <option value={area}>{area}</option>}
+          </select>
         </div>
 
         <div>
