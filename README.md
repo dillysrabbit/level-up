@@ -14,11 +14,27 @@ können.
 - **🎯 Ziele & Maßnahmen** – Entwicklungsziele mit Fristen, Status und Fortschrittsanzeige.
 - **📊 Kompetenz-Check / Skill-Matrix** – Standortbestimmung über vier Kompetenzdimensionen, visualisiert.
 
-## Datenschutz
+## Daten & Datenschutz
 
-Alle Daten werden **ausschließlich lokal im Browser** gespeichert (kein Server, keine Cloud).
-Das ist bei sensiblen Personal- und Gesundheitsdaten (DSGVO) bewusst so gewählt. Über
-**Einstellungen → Backup** lassen sich die Daten als JSON exportieren und importieren.
+Die Daten werden **geräteübergreifend** in einer Supabase-Postgres-Datenbank in der **EU
+(Frankfurt)** gespeichert. Der Zugriff ist nur **nach Anmeldung** möglich und über
+**Row-Level-Security (RLS)** abgesichert: Nur authentifizierte Nutzer:innen erreichen die Daten,
+anonyme Zugriffe sind vollständig gesperrt. Alle angemeldeten Geräte teilen sich denselben
+Datenbestand. Über **Einstellungen → Backup** lässt sich der Bestand als JSON exportieren/importieren.
+
+Der im Client hinterlegte `publishable`-Key ist – wie von Supabase vorgesehen – zur Veröffentlichung
+bestimmt; der Schutz erfolgt über RLS, nicht über Geheimhaltung des Keys. Der `service_role`-Key
+wird nie im Client verwendet.
+
+### Konfiguration
+
+Standardmäßig sind Projekt-URL und publishable Key in `src/lib/supabase.ts` hinterlegt. Optional
+lassen sie sich per Umgebungsvariablen überschreiben (z.B. in `.env` oder bei Vercel):
+
+```
+VITE_SUPABASE_URL=...
+VITE_SUPABASE_ANON_KEY=...
+```
 
 ## Entwicklung
 
