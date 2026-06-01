@@ -250,8 +250,24 @@ export default function VisitForm() {
               <div className="space-y-3">
                 {category.competencies.map((c) => (
                   <div key={c.id}>
-                    <span className="mb-1.5 block text-sm text-slate-700">{c.label}</span>
-                    <div className="flex gap-1.5">
+                    <span className="block text-sm font-medium text-slate-700">{c.label}</span>
+                    {c.points && c.points.length > 0 && (
+                      <details className="group mb-2 mt-1">
+                        <summary className="inline-flex cursor-pointer list-none items-center gap-1 text-xs font-medium text-brand-600 [&::-webkit-details-marker]:hidden">
+                          <span className="transition-transform group-open:rotate-90">›</span>
+                          Beobachtungspunkte
+                        </summary>
+                        <ul className="mt-1.5 space-y-1 pl-1">
+                          {c.points.map((p, i) => (
+                            <li key={i} className="flex gap-1.5 text-xs leading-relaxed text-slate-500">
+                              <span className="text-slate-300">•</span>
+                              <span>{p}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </details>
+                    )}
+                    <div className="mt-1.5 flex gap-1.5">
                       {([1, 2, 3, 4, 5] as CompetencyLevel[]).map((lvl) => {
                         const active = ratings[c.id] === lvl;
                         return (

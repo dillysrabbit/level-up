@@ -4,6 +4,8 @@ export interface Competency {
   id: string;
   label: string;
   hint?: string;
+  /** Operationalisierte Beobachtungspunkte (Leithinweise für die Visitierenden). */
+  points?: string[];
 }
 
 export interface CompetencyCategory {
@@ -28,12 +30,66 @@ const FACHKRAFT: CompetencyCategory[] = [
     label: "Fachkompetenz",
     description: "Pflegefachliches Wissen und Können in der direkten Versorgung.",
     competencies: [
-      { id: "fk_grundpflege", label: "Grundpflege & Mobilisation", hint: "Körperpflege, Lagerung, Prophylaxen, Bewegungsförderung" },
-      { id: "fk_behandlungspflege", label: "Behandlungspflege", hint: "Verbände, Injektionen, Vitalzeichen, ärztliche Anordnungen" },
-      { id: "fk_medikamente", label: "Medikamentenmanagement", hint: "Stellen, Gabe, 6-R-Regel, BtM, Dokumentation" },
-      { id: "fk_wunde", label: "Wundversorgung & -dokumentation", hint: "Wundbeurteilung, Versorgung, Verlauf" },
-      { id: "fk_hygiene", label: "Hygiene & Infektionsschutz", hint: "Standards, Schutzausrüstung, Arbeitssicherheit" },
-      { id: "fk_notfall", label: "Notfall- & Risikomanagement", hint: "Kritische Situationen erkennen, Sturz-/Dekubitusrisiko steuern" },
+      {
+        id: "fk_grundpflege",
+        label: "Grundpflege & Mobilisation",
+        hint: "Körperpflege, Lagerung, Prophylaxen, Bewegungsförderung",
+        points: [
+          "Führt Körperpflege ressourcenorientiert durch (aktivierend, nicht „über den Kopf hinweg“)",
+          "Wendet Transfer-/Kinästhetik-Prinzipien rücken- und bewohnerschonend an",
+          "Setzt Prophylaxen (Dekubitus, Kontraktur, Sturz) situationsgerecht um",
+        ],
+      },
+      {
+        id: "fk_behandlungspflege",
+        label: "Behandlungspflege",
+        hint: "Verbände, Injektionen, Vitalzeichen, ärztliche Anordnungen",
+        points: [
+          "Führt ärztliche Anordnungen korrekt und nachvollziehbar aus",
+          "Misst und interpretiert Vitalzeichen, reagiert angemessen auf Abweichungen",
+          "Arbeitet bei invasiven Maßnahmen sicher und steril",
+        ],
+      },
+      {
+        id: "fk_medikamente",
+        label: "Medikamentenmanagement",
+        hint: "Stellen, Gabe, 6-R-Regel, BtM, Dokumentation",
+        points: [
+          "Hält die 6-R-Regel konsequent ein",
+          "Stellt/verabreicht Medikamente sicher, inkl. korrekter BtM-Handhabung",
+          "Erkennt Wechsel-/Nebenwirkungen und meldet sie",
+        ],
+      },
+      {
+        id: "fk_wunde",
+        label: "Wundversorgung & -dokumentation",
+        hint: "Wundbeurteilung, Versorgung, Verlauf",
+        points: [
+          "Beurteilt Wunden systematisch (Größe, Exsudat, Wundrand)",
+          "Wählt die Versorgung gemäß Standard/Anordnung",
+          "Dokumentiert den Wundverlauf lückenlos (inkl. Fotodoku, falls vorgesehen)",
+        ],
+      },
+      {
+        id: "fk_hygiene",
+        label: "Hygiene & Infektionsschutz",
+        hint: "Standards, Schutzausrüstung, Arbeitssicherheit",
+        points: [
+          "Setzt Händehygiene zu den „5 Momenten“ korrekt um",
+          "Nutzt Schutzausrüstung situationsgerecht",
+          "Hält Standards bei Isolation/multiresistenten Keimen ein",
+        ],
+      },
+      {
+        id: "fk_notfall",
+        label: "Notfall- & Risikomanagement",
+        hint: "Kritische Situationen erkennen, Sturz-/Dekubitusrisiko steuern",
+        points: [
+          "Erkennt kritische Zustandsveränderungen früh (z.B. Exsikkose, Delir, Sturzfolgen)",
+          "Handelt im Notfall strukturiert und priorisiert",
+          "Steuert Risiken proaktiv über Assessments",
+        ],
+      },
     ],
   },
   {
@@ -41,9 +97,36 @@ const FACHKRAFT: CompetencyCategory[] = [
     label: "Methodenkompetenz",
     description: "Strukturiertes, prozesshaftes und rechtssicheres Arbeiten.",
     competencies: [
-      { id: "fk_pflegeprozess", label: "Pflegeprozess & -planung", hint: "Anamnese, Planung, Evaluation, Maßnahmen ableiten" },
-      { id: "fk_doku", label: "Pflegedokumentation", hint: "Vollständig, sachlich, zeitnah, rechtssicher" },
-      { id: "fk_organisation", label: "Arbeitsorganisation & Delegation", hint: "Prioritäten, Zeitmanagement, sichere Delegation an Hilfskräfte" },
+      {
+        id: "fk_pflegeprozess",
+        label: "Pflegeprozess & -planung",
+        hint: "Anamnese, Planung, Evaluation, Maßnahmen ableiten",
+        points: [
+          "Leitet Maßnahmen nachvollziehbar aus dem Assessment ab",
+          "Formuliert Ziele konkret und überprüfbar",
+          "Evaluiert die Planung regelmäßig und passt sie an",
+        ],
+      },
+      {
+        id: "fk_doku",
+        label: "Pflegedokumentation",
+        hint: "Vollständig, sachlich, zeitnah, rechtssicher",
+        points: [
+          "Dokumentiert zeitnah, sachlich und fallbezogen",
+          "Wählt die korrekte Eintragskategorie / verknüpft mit der Planung",
+          "Dokumentation ist widerspruchsfrei zur durchgeführten Pflege",
+        ],
+      },
+      {
+        id: "fk_organisation",
+        label: "Arbeitsorganisation & Delegation",
+        hint: "Prioritäten, Zeitmanagement, sichere Delegation an Hilfskräfte",
+        points: [
+          "Setzt Prioritäten sinnvoll, auch bei hoher Belastung",
+          "Delegiert klar, adressatengerecht und kontrolliert das Ergebnis",
+          "Übergaben sind strukturiert und vollständig",
+        ],
+      },
     ],
   },
   {
@@ -51,9 +134,36 @@ const FACHKRAFT: CompetencyCategory[] = [
     label: "Sozial-kommunikative Kompetenz",
     description: "Beziehung zu Bewohnern, Angehörigen und im Team.",
     competencies: [
-      { id: "fk_bewohner", label: "Beziehung zu Bewohner:innen", hint: "Empathie, Wertschätzung, Bedürfnisorientierung" },
-      { id: "fk_angehoerige", label: "Angehörigenarbeit", hint: "Kommunikation, Beratung, Deeskalation" },
-      { id: "fk_anleitung", label: "Team & Anleitung", hint: "Kooperation, Anleiten von Hilfskräften, Feedback" },
+      {
+        id: "fk_bewohner",
+        label: "Beziehung zu Bewohner:innen",
+        hint: "Empathie, Wertschätzung, Bedürfnisorientierung",
+        points: [
+          "Begegnet Bewohner:innen wertschätzend und auf Augenhöhe",
+          "Achtet auf Intimsphäre, kündigt Handlungen an, holt Zustimmung ein",
+          "Geht individuell auf Biografie/Bedürfnisse ein",
+        ],
+      },
+      {
+        id: "fk_angehoerige",
+        label: "Angehörigenarbeit",
+        hint: "Kommunikation, Beratung, Deeskalation",
+        points: [
+          "Informiert verständlich und proaktiv",
+          "Bleibt in Konfliktsituationen sachlich und deeskalierend",
+          "Wahrt professionelle Grenzen (Datenschutz, Zuständigkeit)",
+        ],
+      },
+      {
+        id: "fk_anleitung",
+        label: "Team & Anleitung",
+        hint: "Kooperation, Anleiten von Hilfskräften, Feedback",
+        points: [
+          "Leitet Hilfskräfte/Azubis verständlich und geduldig an",
+          "Gibt konstruktives Feedback und nimmt es an",
+          "Kooperiert verlässlich und teilt Wissen",
+        ],
+      },
     ],
   },
   {
@@ -61,9 +171,33 @@ const FACHKRAFT: CompetencyCategory[] = [
     label: "Personale Kompetenz",
     description: "Selbststeuerung, Haltung und Weiterentwicklung.",
     competencies: [
-      { id: "fk_eigenverantwortung", label: "Eigenverantwortung", hint: "Selbstständigkeit, Verlässlichkeit, Entscheidungsfreude" },
-      { id: "fk_belastbarkeit", label: "Belastbarkeit & Resilienz", hint: "Umgang mit Stress und Verantwortung" },
-      { id: "fk_lernen", label: "Lern- & Reflexionsbereitschaft", hint: "Offenheit für Feedback und Weiterbildung" },
+      {
+        id: "fk_eigenverantwortung",
+        label: "Eigenverantwortung",
+        hint: "Selbstständigkeit, Verlässlichkeit, Entscheidungsfreude",
+        points: [
+          "Trifft im Rahmen der Kompetenz eigenständig tragfähige Entscheidungen",
+          "Übernimmt Verantwortung für Ergebnisse, auch bei Fehlern",
+        ],
+      },
+      {
+        id: "fk_belastbarkeit",
+        label: "Belastbarkeit & Resilienz",
+        hint: "Umgang mit Stress und Verantwortung",
+        points: [
+          "Bleibt in Stresssituationen handlungsfähig und ruhig",
+          "Erkennt eigene Grenzen und holt rechtzeitig Unterstützung",
+        ],
+      },
+      {
+        id: "fk_lernen",
+        label: "Lern- & Reflexionsbereitschaft",
+        hint: "Offenheit für Feedback und Weiterbildung",
+        points: [
+          "Reflektiert eigenes Handeln kritisch",
+          "Setzt Fortbildungsinhalte in die Praxis um",
+        ],
+      },
     ],
   },
 ];
@@ -78,10 +212,46 @@ const HILFSKRAFT: CompetencyCategory[] = [
     label: "Grundpflege & Unterstützung",
     description: "Sichere, würdevolle Unterstützung im Alltag.",
     competencies: [
-      { id: "hk_koerperpflege", label: "Körperpflege & Unterstützung", hint: "Waschen, Kleiden, Toilettengang – ressourcenorientiert" },
-      { id: "hk_mobilisation", label: "Mobilisation & Lagerung", hint: "Transfer, Bewegungsförderung, Unterstützung bei Prophylaxen" },
-      { id: "hk_ernaehrung", label: "Ernährung & Flüssigkeit", hint: "Hilfe beim Essen/Trinken, auf ausreichende Zufuhr achten" },
-      { id: "hk_hygiene", label: "Hygiene im Alltag", hint: "Händehygiene, saubere Arbeitsweise, Schutzausrüstung" },
+      {
+        id: "hk_koerperpflege",
+        label: "Körperpflege & Unterstützung",
+        hint: "Waschen, Kleiden, Toilettengang – ressourcenorientiert",
+        points: [
+          "Unterstützt aktivierend und fördert vorhandene Fähigkeiten",
+          "Achtet auf Intimsphäre, Wärme und Wohlbefinden",
+          "Beachtet individuelle Gewohnheiten/Vorlieben",
+        ],
+      },
+      {
+        id: "hk_mobilisation",
+        label: "Mobilisation & Lagerung",
+        hint: "Transfer, Bewegungsförderung, Unterstützung bei Prophylaxen",
+        points: [
+          "Führt Transfers sicher und schonend durch",
+          "Unterstützt Lagerungen/Positionswechsel nach Vorgabe",
+          "Animiert zu Bewegung im Alltag",
+        ],
+      },
+      {
+        id: "hk_ernaehrung",
+        label: "Ernährung & Flüssigkeit",
+        hint: "Hilfe beim Essen/Trinken, auf ausreichende Zufuhr achten",
+        points: [
+          "Reicht Essen/Trinken geduldig und aspirationssicher an",
+          "Achtet auf ausreichende Trinkmenge, erkennt Auffälligkeiten",
+          "Beachtet Kostformen (z.B. passiert, Diät)",
+        ],
+      },
+      {
+        id: "hk_hygiene",
+        label: "Hygiene im Alltag",
+        hint: "Händehygiene, saubere Arbeitsweise, Schutzausrüstung",
+        points: [
+          "Setzt Händehygiene korrekt um",
+          "Arbeitet sauber (Schmutzwäsche, Flächen, Hilfsmittel)",
+          "Nutzt Schutzausrüstung situationsgerecht",
+        ],
+      },
     ],
   },
   {
@@ -89,10 +259,43 @@ const HILFSKRAFT: CompetencyCategory[] = [
     label: "Beobachten & Melden",
     description: "Veränderungen wahrnehmen und sicher an die Fachkraft weitergeben.",
     competencies: [
-      { id: "hk_beobachten", label: "Beobachten von Veränderungen", hint: "Haut, Verhalten, Appetit, Allgemeinzustand wahrnehmen" },
-      { id: "hk_melden", label: "Melden & Weitergeben", hint: "Auffälligkeiten zeitnah und klar an die Fachkraft berichten" },
-      { id: "hk_berichteblatt", label: "Korrekte Anwendung des Berichteblattes", hint: "Korrekte Auswahl der Berichtskategorie; sachlich, vollständig und zeitnah dokumentieren" },
-      { id: "hk_risiken", label: "Umgang mit Risiken", hint: "Sturz-, Dekubitus-, Dehydrationszeichen erkennen und melden" },
+      {
+        id: "hk_beobachten",
+        label: "Beobachten von Veränderungen",
+        hint: "Haut, Verhalten, Appetit, Allgemeinzustand wahrnehmen",
+        points: [
+          "Nimmt Veränderungen an Haut, Verhalten, Appetit, Allgemeinzustand wahr",
+          "Erkennt Schmerzäußerungen (auch nonverbale)",
+        ],
+      },
+      {
+        id: "hk_melden",
+        label: "Melden & Weitergeben",
+        hint: "Auffälligkeiten zeitnah und klar an die Fachkraft berichten",
+        points: [
+          "Meldet Auffälligkeiten zeitnah und vollständig an die Fachkraft",
+          "Schätzt selbst ein, was dringlich ist",
+        ],
+      },
+      {
+        id: "hk_berichteblatt",
+        label: "Korrekte Anwendung des Berichteblattes",
+        hint: "Korrekte Auswahl der Berichtskategorie; sachlich, vollständig und zeitnah dokumentieren",
+        points: [
+          "Wählt die korrekte Berichtskategorie",
+          "Dokumentiert sachlich, konkret und zeitnah",
+          "Trägt im richtigen Bewohnerprofil ein",
+        ],
+      },
+      {
+        id: "hk_risiken",
+        label: "Umgang mit Risiken",
+        hint: "Sturz-, Dekubitus-, Dehydrationszeichen erkennen und melden",
+        points: [
+          "Erkennt Sturz-, Dekubitus-, Dehydrationszeichen und meldet sie",
+          "Handelt im Rahmen der eigenen Kompetenz richtig (z.B. Notruf absetzen)",
+        ],
+      },
     ],
   },
   {
@@ -100,9 +303,33 @@ const HILFSKRAFT: CompetencyCategory[] = [
     label: "Sozial-kommunikative Kompetenz",
     description: "Beziehung zu Bewohnern, Angehörigen und im Team.",
     competencies: [
-      { id: "hk_bewohner", label: "Beziehung & Kommunikation", hint: "Empathie, Wertschätzung, geduldiger Umgang" },
-      { id: "hk_angehoerige", label: "Umgang mit Angehörigen", hint: "Freundlich, hilfsbereit, Grenzen kennen" },
-      { id: "hk_team", label: "Teamarbeit", hint: "Zusammenarbeit, Absprachen einhalten, Übergaben" },
+      {
+        id: "hk_bewohner",
+        label: "Beziehung & Kommunikation",
+        hint: "Empathie, Wertschätzung, geduldiger Umgang",
+        points: [
+          "Begegnet Bewohner:innen freundlich, geduldig, wertschätzend",
+          "Kündigt Handlungen an und kommuniziert verständlich",
+        ],
+      },
+      {
+        id: "hk_angehoerige",
+        label: "Umgang mit Angehörigen",
+        hint: "Freundlich, hilfsbereit, Grenzen kennen",
+        points: [
+          "Tritt freundlich und hilfsbereit auf",
+          "Kennt Grenzen und verweist bei Bedarf an die Fachkraft",
+        ],
+      },
+      {
+        id: "hk_team",
+        label: "Teamarbeit",
+        hint: "Zusammenarbeit, Absprachen einhalten, Übergaben",
+        points: [
+          "Hält Absprachen ein und arbeitet zuverlässig zu",
+          "Gibt relevante Infos in der Übergabe weiter",
+        ],
+      },
     ],
   },
   {
@@ -110,9 +337,33 @@ const HILFSKRAFT: CompetencyCategory[] = [
     label: "Personale Kompetenz",
     description: "Haltung, Zuverlässigkeit und Lernbereitschaft.",
     competencies: [
-      { id: "hk_zuverlaessigkeit", label: "Zuverlässigkeit & Pünktlichkeit", hint: "Verlässliche Aufgabenerfüllung, Absprachen" },
-      { id: "hk_sorgfalt", label: "Sorgfalt & Hygienebewusstsein", hint: "Gewissenhaftes, sicheres Arbeiten" },
-      { id: "hk_lernen", label: "Lernbereitschaft", hint: "Offenheit für Anleitung und Feedback" },
+      {
+        id: "hk_zuverlaessigkeit",
+        label: "Zuverlässigkeit & Pünktlichkeit",
+        hint: "Verlässliche Aufgabenerfüllung, Absprachen",
+        points: [
+          "Erfüllt übertragene Aufgaben verlässlich und vollständig",
+          "Ist pünktlich und meldet Ausfälle rechtzeitig",
+        ],
+      },
+      {
+        id: "hk_sorgfalt",
+        label: "Sorgfalt & Hygienebewusstsein",
+        hint: "Gewissenhaftes, sicheres Arbeiten",
+        points: [
+          "Arbeitet gewissenhaft und sicher",
+          "Hält sich konsequent an Hygiene-/Sicherheitsregeln",
+        ],
+      },
+      {
+        id: "hk_lernen",
+        label: "Lernbereitschaft",
+        hint: "Offenheit für Anleitung und Feedback",
+        points: [
+          "Nimmt Anleitung und Feedback offen an",
+          "Setzt Rückmeldungen sichtbar um",
+        ],
+      },
     ],
   },
 ];
