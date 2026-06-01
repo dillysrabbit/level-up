@@ -40,7 +40,12 @@
     @apply btn border border-red-200 bg-white text-red-600 hover:bg-red-50;
   }
   .input {
-    @apply w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-base text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-100;
+    @apply w-full min-w-0 max-w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-base text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-100;
+  }
+  /* iOS: native date-/time-Felder haben eine Mindestbreite – hier neutralisieren */
+  input[type="date"].input,
+  input[type="time"].input {
+    @apply box-border appearance-none;
   }
   .label {
     @apply mb-1.5 block text-sm font-medium text-slate-600;
