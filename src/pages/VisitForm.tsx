@@ -158,7 +158,7 @@ export default function VisitForm() {
           </p>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-3">
           <div className="min-w-0">
             <label className="label">Datum</label>
             <input
