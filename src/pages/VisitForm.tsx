@@ -252,7 +252,7 @@ export default function VisitForm() {
                   <div key={c.id}>
                     <span className="block text-sm font-medium text-slate-700">{c.label}</span>
                     {c.points && c.points.length > 0 && (
-                      <details className="group mb-2 mt-1">
+                      <details className="group mb-2 mt-1" open>
                         <summary className="inline-flex cursor-pointer list-none items-center gap-1 text-xs font-medium text-brand-600 [&::-webkit-details-marker]:hidden">
                           <span className="transition-transform group-open:rotate-90">›</span>
                           Beobachtungspunkte

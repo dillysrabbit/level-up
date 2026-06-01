@@ -183,17 +183,33 @@ function makeRenderer(doc: jsPDF) {
     doc.setFontSize(9);
     doc.text("Einzelbewertungen", margin, y);
     y += 14;
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(10);
-    setColor(SLATE);
     for (const r of visit.ratings) {
+      const comp = findCompetency(r.competencyId);
       ensure(14);
-      const label = findCompetency(r.competencyId)?.label ?? r.competencyId;
-      doc.text(sanitize(label), margin, y);
+      setColor(SLATE);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(10);
+      doc.text(sanitize(comp?.label ?? r.competencyId), margin, y);
+      doc.setFont("helvetica", "bold");
       doc.text(sanitize(`${r.level} · ${LEVEL_SCALE[r.level].label}`), pageW - margin, y, {
         align: "right",
       });
       y += 14;
+      // Leithinweise (Beobachtungspunkte) als Referenz
+      if (comp?.points?.length) {
+        setColor(MUTED);
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(8.5);
+        for (const p of comp.points) {
+          const lines = doc.splitTextToSize(`• ${sanitize(p)}`, contentW - 12) as string[];
+          for (const line of lines) {
+            ensure(11);
+            doc.text(line, margin + 12, y);
+            y += 11;
+          }
+        }
+        y += 4;
+      }
     }
     y += 8;
   }
