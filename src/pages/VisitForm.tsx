@@ -159,7 +159,7 @@ export default function VisitForm() {
         </div>
 
         <div className="grid grid-cols-2 gap-3">
-          <div>
+          <div className="min-w-0">
             <label className="label">Datum</label>
             <input
               type="date"
@@ -168,7 +168,7 @@ export default function VisitForm() {
               onChange={(e) => setDate(e.target.value)}
             />
           </div>
-          <div>
+          <div className="min-w-0">
             <label className="label">Anlass</label>
             <select
               className="input"

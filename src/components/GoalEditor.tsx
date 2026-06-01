@@ -75,7 +75,7 @@ export default function GoalEditor({
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            <div>
+            <div className="min-w-0">
               <label className="label">Zieltermin</label>
               <input
                 type="date"
@@ -84,7 +84,7 @@ export default function GoalEditor({
                 onChange={(e) => setDueDate(e.target.value)}
               />
             </div>
-            <div>
+            <div className="min-w-0">
               <label className="label">Status</label>
               <select
                 className="input"

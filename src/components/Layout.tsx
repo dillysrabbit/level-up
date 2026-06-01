@@ -26,7 +26,10 @@ export default function Layout({ children }: { children: ReactNode }) {
 
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-2xl flex-col">
-      <header className="sticky top-0 z-10 flex items-center gap-3 border-b border-slate-200/70 bg-white/80 px-4 py-3 backdrop-blur-lg">
+      <header
+        className="sticky top-0 z-10 flex items-center gap-3 border-b border-slate-200/70 bg-white/80 px-4 pb-3 backdrop-blur-lg"
+        style={{ paddingTop: "calc(env(safe-area-inset-top) + 0.75rem)" }}
+      >
         <Logo />
         <div>
           <h1 className="text-base font-bold leading-tight text-slate-900">LevelUp</h1>
