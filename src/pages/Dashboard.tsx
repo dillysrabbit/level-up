@@ -18,9 +18,30 @@ export default function Dashboard() {
   const openGoals = data.goals.filter((g) => g.status !== "erreicht");
   const today = new Date().toISOString().slice(0, 10);
   const dueGoals = openGoals.filter((g) => g.dueDate && g.dueDate <= today);
-  const recentVisits = [...data.visits].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 5);
   const employeeName = (id: string) =>
     data.employees.find((e) => e.id === id)?.name ?? "Unbekannt";
+
+  // Visiten und Notizen zu einem chronologischen Aktivitäts-Feed zusammenführen.
+  const recentActivity = [
+    ...data.visits.map((v) => ({
+      kind: "visit" as const,
+      id: v.id,
+      employeeId: v.employeeId,
+      date: v.date,
+      ts: Date.parse(v.date) || 0,
+      text: v.summary || v.observations || "Visite",
+    })),
+    ...data.notes.map((n) => ({
+      kind: "note" as const,
+      id: n.id,
+      employeeId: n.employeeId,
+      date: n.createdAt,
+      ts: Date.parse(n.createdAt) || 0,
+      text: n.text,
+    })),
+  ]
+    .sort((a, b) => b.ts - a.ts)
+    .slice(0, 6);
 
   return (
     <div className="space-y-7">
@@ -82,12 +103,12 @@ export default function Dashboard() {
       )}
 
       <section>
-        <h3 className="section-title">Letzte Visiten</h3>
-        {recentVisits.length === 0 ? (
+        <h3 className="section-title">Letzte Aktivität</h3>
+        {recentActivity.length === 0 ? (
           <EmptyState
             icon={<VisitIcon size={26} strokeWidth={1.7} />}
-            title="Noch keine Visiten"
-            hint="Lege zuerst Mitarbeiter:innen an und starte dann deine erste Visite."
+            title="Noch keine Aktivität"
+            hint="Lege zuerst Mitarbeiter:innen an und erfasse dann eine Visite oder Notiz."
             action={
               <Link to="/mitarbeiter/neu" className="btn-primary">
                 <PlusIcon size={17} strokeWidth={2.2} /> Mitarbeiter:in anlegen
@@ -96,18 +117,37 @@ export default function Dashboard() {
           />
         ) : (
           <div className="space-y-2">
-            {recentVisits.map((v) => (
+            {recentActivity.map((a) => (
               <Link
-                key={v.id}
-                to={`/visite/${v.id}`}
+                key={`${a.kind}-${a.id}`}
+                to={a.kind === "visit" ? `/visite/${a.id}` : `/mitarbeiter/${a.employeeId}`}
                 className="card flex items-center gap-3 px-4 py-3 transition hover:shadow-card"
               >
-                <Avatar name={employeeName(v.employeeId)} size="sm" />
+                <Avatar name={employeeName(a.employeeId)} size="sm" />
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-medium text-slate-800">
-                    {employeeName(v.employeeId)}
+                    {employeeName(a.employeeId)}
                   </p>
-                  <p className="text-xs text-slate-500">{formatDate(v.date)}</p>
+                  <p className="mt-0.5 flex items-center gap-1.5 text-xs text-slate-500">
+                    <span
+                      className={`inline-flex shrink-0 items-center gap-1 rounded-full px-1.5 py-0.5 font-medium ${
+                        a.kind === "visit"
+                          ? "bg-brand-50 text-brand-600"
+                          : "bg-amber-50 text-amber-600"
+                      }`}
+                    >
+                      {a.kind === "visit" ? (
+                        <VisitIcon size={11} strokeWidth={2.2} />
+                      ) : (
+                        <NoteIcon size={11} strokeWidth={2.2} />
+                      )}
+                      {a.kind === "visit" ? "Visite" : "Notiz"}
+                    </span>
+                    <span className="truncate">
+                      {formatDate(a.date)}
+                      {a.text ? ` · ${a.text}` : ""}
+                    </span>
+                  </p>
                 </div>
                 <ChevronRightIcon size={18} className="shrink-0 text-slate-300" />
               </Link>
