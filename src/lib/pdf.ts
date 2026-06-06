@@ -1,5 +1,5 @@
 import { jsPDF } from "jspdf";
-import type { Employee, Visit } from "../types";
+import type { Employee, Note, Visit } from "../types";
 import {
   categoryScores,
   overallAverage,
@@ -8,7 +8,7 @@ import {
   type DimensionTrend,
 } from "./analytics";
 import { findCompetency, LEVEL_SCALE, visitTypeLabel } from "../data/competencyFramework";
-import { formatDate } from "./format";
+import { formatDate, formatDateTime } from "./format";
 
 const OCCASION_LABELS: Record<string, string> = {
   routine: "Routine",
@@ -308,6 +308,15 @@ function makeRenderer(doc: jsPDF) {
     y += 16;
   }
 
+  function notesSection(notes: Note[]) {
+    if (!notes.length) return;
+    heading("Notizen");
+    for (const n of notes) {
+      mutedLine(formatDateTime(n.createdAt));
+      paragraph(n.text);
+    }
+  }
+
   function signatures() {
     ensure(50);
     y += 14;
@@ -346,6 +355,7 @@ function makeRenderer(doc: jsPDF) {
     competencyProfile,
     trendOverall,
     trendDimensions,
+    notesSection,
     signatures,
     footer,
   };
@@ -375,7 +385,11 @@ export function exportVisitPdf(visit: Visit, employee: Employee | undefined): vo
 }
 
 /** Sammel-Export: alle Visiten einer Person als zusammenhängender Bericht inkl. Verlauf. */
-export function exportEmployeePdf(employee: Employee | undefined, visits: Visit[]): void {
+export function exportEmployeePdf(
+  employee: Employee | undefined,
+  visits: Visit[],
+  notes: Note[] = [],
+): void {
   const doc = new jsPDF({ unit: "pt", format: "a4" });
   const r = makeRenderer(doc);
   const sorted = [...visits].sort((a, b) => a.date.localeCompare(b.date));
@@ -405,6 +419,8 @@ export function exportEmployeePdf(employee: Employee | undefined, visits: Visit[
     r.heading("Verlauf je Dimension");
     r.trendDimensions(dim);
   }
+
+  r.notesSection(notes);
 
   // Einzelne Visiten, neueste zuerst
   for (const v of [...sorted].reverse()) {

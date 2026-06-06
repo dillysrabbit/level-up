@@ -395,7 +395,7 @@ export default function EmployeeDetail() {
           className="btn-secondary w-full"
           onClick={async () => {
             const { exportEmployeePdf } = await import("../lib/pdf");
-            exportEmployeePdf(employee, visits);
+            exportEmployeePdf(employee, visits, notes);
           }}
         >
           <DownloadIcon size={17} strokeWidth={2} /> Gesamtbericht als PDF
