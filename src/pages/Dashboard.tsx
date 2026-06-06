@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { useStore } from "../store/store";
 import { Avatar, EmptyState } from "../components/ui";
-import { formatDate } from "../lib/format";
+import { formatDate, formatDateTime } from "../lib/format";
 import {
   VisitIcon,
   TeamIcon,
@@ -144,7 +144,7 @@ export default function Dashboard() {
                       {a.kind === "visit" ? "Visite" : "Notiz"}
                     </span>
                     <span className="truncate">
-                      {formatDate(a.date)}
+                      {a.kind === "note" ? formatDateTime(a.date) : formatDate(a.date)}
                       {a.text ? ` · ${a.text}` : ""}
                     </span>
                   </p>
