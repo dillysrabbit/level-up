@@ -36,6 +36,7 @@ export default function EmployeeDetail() {
     deleteGoal,
     notesOf,
     addNote,
+    updateNote,
     deleteNote,
   } = useStore();
 
@@ -44,6 +45,8 @@ export default function EmployeeDetail() {
   const [creatingGoal, setCreatingGoal] = useState(false);
   const [trendMode, setTrendMode] = useState<"gesamt" | "dimensionen">("gesamt");
   const [noteDraft, setNoteDraft] = useState("");
+  const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
+  const [editDraft, setEditDraft] = useState("");
 
   if (!employee) {
     return (
@@ -80,6 +83,23 @@ export default function EmployeeDetail() {
     if (!text) return;
     addNote({ employeeId: employee!.id, text });
     setNoteDraft("");
+  }
+
+  function startEditNote(id: string, text: string) {
+    setEditingNoteId(id);
+    setEditDraft(text);
+  }
+
+  function cancelEditNote() {
+    setEditingNoteId(null);
+    setEditDraft("");
+  }
+
+  function saveEditNote(id: string) {
+    const text = editDraft.trim();
+    if (!text) return;
+    updateNote(id, { text });
+    cancelEditNote();
   }
 
   function saveGoal(draft: GoalDraft) {
@@ -165,23 +185,64 @@ export default function EmployeeDetail() {
             />
           ) : (
             <ul className="space-y-2">
-              {notes.map((n) => (
-                <li key={n.id} className="rounded-xl bg-slate-50 p-3">
-                  <div className="flex items-start justify-between gap-3">
-                    <p className="min-w-0 whitespace-pre-wrap break-words text-sm leading-relaxed text-slate-700">
-                      {n.text}
-                    </p>
-                    <button
-                      className="shrink-0 text-slate-400 transition hover:text-red-600"
-                      aria-label="Notiz löschen"
-                      onClick={() => confirm("Notiz löschen?") && deleteNote(n.id)}
-                    >
-                      <TrashIcon size={15} />
-                    </button>
-                  </div>
-                  <p className="mt-1.5 text-xs text-slate-400">{formatDateTime(n.createdAt)}</p>
-                </li>
-              ))}
+              {notes.map((n) =>
+                editingNoteId === n.id ? (
+                  <li key={n.id} className="rounded-xl bg-slate-50 p-3">
+                    <textarea
+                      className="input min-h-[64px]"
+                      value={editDraft}
+                      onChange={(e) => setEditDraft(e.target.value)}
+                      autoFocus
+                      onKeyDown={(e) => {
+                        if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+                          e.preventDefault();
+                          saveEditNote(n.id);
+                        } else if (e.key === "Escape") {
+                          e.preventDefault();
+                          cancelEditNote();
+                        }
+                      }}
+                    />
+                    <div className="mt-2 flex justify-end gap-2">
+                      <button className="btn-secondary px-3 py-1.5 text-xs" onClick={cancelEditNote}>
+                        Abbrechen
+                      </button>
+                      <button
+                        className="btn-primary px-3 py-1.5 text-xs"
+                        onClick={() => saveEditNote(n.id)}
+                        disabled={!editDraft.trim()}
+                      >
+                        Speichern
+                      </button>
+                    </div>
+                  </li>
+                ) : (
+                  <li key={n.id} className="rounded-xl bg-slate-50 p-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <p className="min-w-0 whitespace-pre-wrap break-words text-sm leading-relaxed text-slate-700">
+                        {n.text}
+                      </p>
+                      <div className="flex shrink-0 gap-2">
+                        <button
+                          className="text-slate-400 transition hover:text-brand-600"
+                          aria-label="Notiz bearbeiten"
+                          onClick={() => startEditNote(n.id, n.text)}
+                        >
+                          <EditIcon size={15} />
+                        </button>
+                        <button
+                          className="text-slate-400 transition hover:text-red-600"
+                          aria-label="Notiz löschen"
+                          onClick={() => confirm("Notiz löschen?") && deleteNote(n.id)}
+                        >
+                          <TrashIcon size={15} />
+                        </button>
+                      </div>
+                    </div>
+                    <p className="mt-1.5 text-xs text-slate-400">{formatDateTime(n.createdAt)}</p>
+                  </li>
+                ),
+              )}
             </ul>
           )}
         </div>

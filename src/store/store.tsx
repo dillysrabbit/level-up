@@ -37,6 +37,7 @@ interface StoreContextValue {
 
   // Notizen
   addNote: (input: Omit<Note, "id" | "createdAt">) => Note;
+  updateNote: (id: string, patch: Partial<Note>) => void;
   deleteNote: (id: string) => void;
   notesOf: (employeeId: string) => Note[];
 
@@ -273,6 +274,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     return note;
   }, []);
 
+  const updateNote = useCallback((id: string, patch: Partial<Note>) => {
+    setData((d) => ({ ...d, notes: d.notes.map((n) => (n.id === id ? { ...n, ...patch } : n)) }));
+    supabase.from("notes").update(patchToRow(patch)).eq("id", id).then(fail("Notiz aktualisieren"));
+  }, []);
+
   const deleteNote = useCallback((id: string) => {
     setData((d) => ({ ...d, notes: d.notes.filter((n) => n.id !== id) }));
     supabase.from("notes").delete().eq("id", id).then(fail("Notiz löschen"));
@@ -328,6 +334,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           .filter((g) => g.employeeId === employeeId)
           .sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
       addNote,
+      updateNote,
       deleteNote,
       notesOf: (employeeId) =>
         data.notes
@@ -351,6 +358,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       updateGoal,
       deleteGoal,
       addNote,
+      updateNote,
       deleteNote,
       replaceAll,
       resetAll,
