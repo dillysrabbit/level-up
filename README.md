@@ -13,6 +13,7 @@ können.
 - **📋 Visiten-Formular & Doku** – strukturierter Bogen: Beobachtungen, Stärken, Entwicklungsfelder, Fazit.
 - **🎯 Ziele & Maßnahmen** – Entwicklungsziele mit Fristen, Status und Fortschrittsanzeige.
 - **📊 Kompetenz-Check / Skill-Matrix** – Standortbestimmung über vier Kompetenzdimensionen, visualisiert.
+- **📝 Notizen** – kurze, mit Zeitstempel versehene Notizen direkt am Mitarbeiterprofil festhalten.
 
 ## Daten & Datenschutz
 

@@ -8,6 +8,7 @@ export const emptyData: AppData = {
   employees: [],
   visits: [],
   goals: [],
+  notes: [],
 };
 
 /** Lädt die Daten aus dem localStorage. Fällt bei Fehlern auf einen leeren Zustand zurück. */
@@ -21,6 +22,7 @@ export function loadData(): AppData {
       employees: parsed.employees ?? [],
       visits: parsed.visits ?? [],
       goals: parsed.goals ?? [],
+      notes: parsed.notes ?? [],
     };
   } catch (err) {
     console.error("LevelUp: Daten konnten nicht geladen werden.", err);
@@ -69,5 +71,6 @@ export async function importData(file: File): Promise<AppData> {
     employees: parsed.employees ?? [],
     visits: parsed.visits ?? [],
     goals: parsed.goals ?? [],
+    notes: parsed.notes ?? [],
   };
 }

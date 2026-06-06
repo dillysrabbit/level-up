@@ -6,6 +6,20 @@ export function formatDate(iso?: string): string {
   return d.toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" });
 }
 
+/** Formatiert einen ISO-Zeitstempel als TT.MM.JJJJ, HH:MM (deutsch). */
+export function formatDateTime(iso?: string): string {
+  if (!iso) return "–";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso;
+  return d.toLocaleString("de-DE", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
 /** Heutiges Datum im Format YYYY-MM-DD (für <input type="date">). */
 export function todayISO(): string {
   return new Date().toISOString().slice(0, 10);

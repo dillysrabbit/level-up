@@ -55,6 +55,15 @@ export interface Visit {
   createdAt: string;
 }
 
+/** Eine kurze, zeitlich verortete Notiz zu einer Pflegekraft. */
+export interface Note {
+  id: ID;
+  employeeId: ID;
+  /** Freier Notiztext */
+  text: string;
+  createdAt: string;
+}
+
 export type GoalStatus = "offen" | "in_arbeit" | "erreicht";
 
 /** Ein Entwicklungsziel mit konkreten Maßnahmen. */
@@ -82,4 +91,5 @@ export interface AppData {
   employees: Employee[];
   visits: Visit[];
   goals: Goal[];
+  notes: Note[];
 }

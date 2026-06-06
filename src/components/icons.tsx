@@ -14,6 +14,7 @@ export {
   CircleCheck as StrengthIcon,
   Sprout as GrowthIcon,
   MessageSquareText as TalkIcon,
+  StickyNote as NoteIcon,
   ShieldCheck as PrivacyIcon,
   Download as DownloadIcon,
   Upload as UploadIcon,

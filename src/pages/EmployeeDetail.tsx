@@ -9,7 +9,7 @@ import ScaleLegend from "../components/ScaleLegend";
 import GoalEditor, { type GoalDraft } from "../components/GoalEditor";
 import { categoryScores, overallAverage, averageTrend, dimensionTrends } from "../lib/analytics";
 import { categoryById, frameworkFor, visitTypeForQualification } from "../data/competencyFramework";
-import { formatDate } from "../lib/format";
+import { formatDate, formatDateTime } from "../lib/format";
 import type { Goal } from "../types";
 import {
   VisitIcon,
@@ -20,18 +20,30 @@ import {
   TrashIcon,
   SearchIcon,
   DownloadIcon,
+  NoteIcon,
 } from "../components/icons";
 
 export default function EmployeeDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { getEmployee, deleteEmployee, visitsOf, goalsOf, addGoal, updateGoal, deleteGoal } =
-    useStore();
+  const {
+    getEmployee,
+    deleteEmployee,
+    visitsOf,
+    goalsOf,
+    addGoal,
+    updateGoal,
+    deleteGoal,
+    notesOf,
+    addNote,
+    deleteNote,
+  } = useStore();
 
   const employee = id ? getEmployee(id) : undefined;
   const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
   const [creatingGoal, setCreatingGoal] = useState(false);
   const [trendMode, setTrendMode] = useState<"gesamt" | "dimensionen">("gesamt");
+  const [noteDraft, setNoteDraft] = useState("");
 
   if (!employee) {
     return (
@@ -49,6 +61,7 @@ export default function EmployeeDetail() {
 
   const visits = visitsOf(employee.id);
   const goals = goalsOf(employee.id);
+  const notes = notesOf(employee.id);
   const latestVisit = visits[0];
   const scores = categoryScores(latestVisit);
   const avg = overallAverage(latestVisit);
@@ -60,6 +73,13 @@ export default function EmployeeDetail() {
       deleteEmployee(employee!.id);
       navigate("/mitarbeiter");
     }
+  }
+
+  function saveNote() {
+    const text = noteDraft.trim();
+    if (!text) return;
+    addNote({ employeeId: employee!.id, text });
+    setNoteDraft("");
   }
 
   function saveGoal(draft: GoalDraft) {
@@ -106,10 +126,66 @@ export default function EmployeeDetail() {
 
       {employee.notes && (
         <div className="card p-4 text-sm leading-relaxed text-slate-600">
-          <p className="mb-1 font-semibold text-slate-700">Notizen</p>
+          <p className="mb-1 font-semibold text-slate-700">Steckbrief</p>
           {employee.notes}
         </div>
       )}
+
+      {/* Notizen */}
+      <section>
+        <h3 className="section-title">Notizen</h3>
+        <div className="card space-y-3 p-4">
+          <div className="flex flex-col gap-2">
+            <textarea
+              className="input min-h-[64px]"
+              value={noteDraft}
+              onChange={(e) => setNoteDraft(e.target.value)}
+              placeholder="Kurze Notiz festhalten…"
+              onKeyDown={(e) => {
+                if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+                  e.preventDefault();
+                  saveNote();
+                }
+              }}
+            />
+            <button
+              className="btn-primary self-end"
+              onClick={saveNote}
+              disabled={!noteDraft.trim()}
+            >
+              <PlusIcon size={17} strokeWidth={2.2} /> Notiz hinzufügen
+            </button>
+          </div>
+
+          {notes.length === 0 ? (
+            <EmptyState
+              icon={<NoteIcon size={24} strokeWidth={1.7} />}
+              title="Noch keine Notizen"
+              hint="Halte kurze Beobachtungen oder Erinnerungen zu dieser Person fest."
+            />
+          ) : (
+            <ul className="space-y-2">
+              {notes.map((n) => (
+                <li key={n.id} className="rounded-xl bg-slate-50 p-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <p className="min-w-0 whitespace-pre-wrap break-words text-sm leading-relaxed text-slate-700">
+                      {n.text}
+                    </p>
+                    <button
+                      className="shrink-0 text-slate-400 transition hover:text-red-600"
+                      aria-label="Notiz löschen"
+                      onClick={() => confirm("Notiz löschen?") && deleteNote(n.id)}
+                    >
+                      <TrashIcon size={15} />
+                    </button>
+                  </div>
+                  <p className="mt-1.5 text-xs text-slate-400">{formatDateTime(n.createdAt)}</p>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </section>
 
       {/* Skill-Matrix */}
       <section>

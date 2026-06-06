@@ -7,7 +7,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import type { AppData, Employee, Goal, Visit } from "../types";
+import type { AppData, Employee, Goal, Note, Visit } from "../types";
 import { emptyData, uid } from "./storage";
 import { supabase } from "../lib/supabase";
 
@@ -34,6 +34,11 @@ interface StoreContextValue {
   updateGoal: (id: string, patch: Partial<Goal>) => void;
   deleteGoal: (id: string) => void;
   goalsOf: (employeeId: string) => Goal[];
+
+  // Notizen
+  addNote: (input: Omit<Note, "id" | "createdAt">) => Note;
+  deleteNote: (id: string) => void;
+  notesOf: (employeeId: string) => Note[];
 
   // Verwaltung
   replaceAll: (data: AppData) => Promise<void>;
@@ -83,6 +88,13 @@ const toGoal = (r: Row): Goal => ({
   createdAt: r.created_at as string,
 });
 
+const toNote = (r: Row): Note => ({
+  id: r.id as string,
+  employeeId: r.employee_id as string,
+  text: (r.text as string) ?? "",
+  createdAt: r.created_at as string,
+});
+
 const employeeRow = (e: Employee) => ({
   id: e.id,
   name: e.name,
@@ -105,6 +117,13 @@ const visitRow = (v: Visit) => ({
   ratings: v.ratings,
   summary: v.summary,
   created_at: v.createdAt,
+});
+
+const noteRow = (n: Note) => ({
+  id: n.id,
+  employee_id: n.employeeId,
+  text: n.text,
+  created_at: n.createdAt,
 });
 
 const goalRow = (g: Goal) => ({
@@ -148,12 +167,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const reload = useCallback(async () => {
     setLoading(true);
     setError(null);
-    const [emp, vis, gol] = await Promise.all([
+    const [emp, vis, gol, not] = await Promise.all([
       supabase.from("employees").select("*"),
       supabase.from("visits").select("*"),
       supabase.from("goals").select("*"),
+      supabase.from("notes").select("*"),
     ]);
-    const firstError = emp.error || vis.error || gol.error;
+    const firstError = emp.error || vis.error || gol.error || not.error;
     if (firstError) {
       setError(firstError.message);
       setLoading(false);
@@ -164,6 +184,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       employees: (emp.data ?? []).map(toEmployee),
       visits: (vis.data ?? []).map(toVisit),
       goals: (gol.data ?? []).map(toGoal),
+      notes: (not.data ?? []).map(toNote),
     });
     setLoading(false);
   }, []);
@@ -202,8 +223,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       employees: d.employees.filter((e) => e.id !== id),
       visits: d.visits.filter((v) => v.employeeId !== id),
       goals: d.goals.filter((g) => g.employeeId !== id),
+      notes: d.notes.filter((n) => n.employeeId !== id),
     }));
-    // visits/goals werden per ON DELETE CASCADE in der DB mitgelöscht
+    // visits/goals/notes werden per ON DELETE CASCADE in der DB mitgelöscht
     supabase.from("employees").delete().eq("id", id).then(fail("Mitarbeiter löschen"));
   }, []);
 
@@ -243,9 +265,23 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     supabase.from("goals").delete().eq("id", id).then(fail("Ziel löschen"));
   }, []);
 
+  /* Notizen */
+  const addNote = useCallback((input: Omit<Note, "id" | "createdAt">) => {
+    const note: Note = { ...input, id: uid(), createdAt: new Date().toISOString() };
+    setData((d) => ({ ...d, notes: [...d.notes, note] }));
+    supabase.from("notes").insert(noteRow(note)).then(fail("Notiz speichern"));
+    return note;
+  }, []);
+
+  const deleteNote = useCallback((id: string) => {
+    setData((d) => ({ ...d, notes: d.notes.filter((n) => n.id !== id) }));
+    supabase.from("notes").delete().eq("id", id).then(fail("Notiz löschen"));
+  }, []);
+
   const replaceAll = useCallback(
     async (next: AppData) => {
       // Backup-Import: vorhandene Daten ersetzen
+      await supabase.from("notes").delete().neq("id", "00000000-0000-0000-0000-000000000000");
       await supabase.from("goals").delete().neq("id", "00000000-0000-0000-0000-000000000000");
       await supabase.from("visits").delete().neq("id", "00000000-0000-0000-0000-000000000000");
       await supabase.from("employees").delete().neq("id", "00000000-0000-0000-0000-000000000000");
@@ -253,12 +289,14 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         await supabase.from("employees").insert(next.employees.map(employeeRow));
       if (next.visits.length) await supabase.from("visits").insert(next.visits.map(visitRow));
       if (next.goals.length) await supabase.from("goals").insert(next.goals.map(goalRow));
+      if (next.notes?.length) await supabase.from("notes").insert(next.notes.map(noteRow));
       await reload();
     },
     [reload],
   );
 
   const resetAll = useCallback(async () => {
+    await supabase.from("notes").delete().neq("id", "00000000-0000-0000-0000-000000000000");
     await supabase.from("goals").delete().neq("id", "00000000-0000-0000-0000-000000000000");
     await supabase.from("visits").delete().neq("id", "00000000-0000-0000-0000-000000000000");
     await supabase.from("employees").delete().neq("id", "00000000-0000-0000-0000-000000000000");
@@ -289,6 +327,12 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         data.goals
           .filter((g) => g.employeeId === employeeId)
           .sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
+      addNote,
+      deleteNote,
+      notesOf: (employeeId) =>
+        data.notes
+          .filter((n) => n.employeeId === employeeId)
+          .sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
       replaceAll,
       resetAll,
     }),
@@ -306,6 +350,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       addGoal,
       updateGoal,
       deleteGoal,
+      addNote,
+      deleteNote,
       replaceAll,
       resetAll,
     ],
