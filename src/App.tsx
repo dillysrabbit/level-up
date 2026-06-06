@@ -6,6 +6,7 @@ import EmployeeForm from "./pages/EmployeeForm";
 import EmployeeDetail from "./pages/EmployeeDetail";
 import VisitForm from "./pages/VisitForm";
 import VisitDetail from "./pages/VisitDetail";
+import NoteForm from "./pages/NoteForm";
 import Settings from "./pages/Settings";
 import { useStore } from "./store/store";
 
@@ -33,6 +34,8 @@ export default function App() {
           <Route path="/visite/neu" element={<VisitForm />} />
           <Route path="/visite/neu/:employeeId" element={<VisitForm />} />
           <Route path="/visite/:id" element={<VisitDetail />} />
+          <Route path="/notiz/neu" element={<NoteForm />} />
+          <Route path="/notiz/neu/:employeeId" element={<NoteForm />} />
           <Route path="/einstellungen" element={<Settings />} />
           <Route path="*" element={<Dashboard />} />
         </Routes>

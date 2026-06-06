@@ -9,6 +9,7 @@ import {
   ChevronRightIcon,
   PlusIcon,
   AlertIcon,
+  NoteIcon,
 } from "../components/icons";
 
 export default function Dashboard() {
@@ -41,10 +42,19 @@ export default function Dashboard() {
         />
       </div>
 
-      <Link to="/visite/neu" className="btn-primary w-full py-3.5 text-base">
-        <VisitIcon size={19} strokeWidth={2} />
-        Neue Visite starten
-      </Link>
+      <div>
+        <p className="mb-2 px-1 text-sm font-medium text-slate-500">Neu erfassen</p>
+        <div className="grid grid-cols-2 gap-3">
+          <Link to="/visite/neu" className="btn-primary py-3.5 text-base">
+            <VisitIcon size={19} strokeWidth={2} />
+            Visite
+          </Link>
+          <Link to="/notiz/neu" className="btn-secondary py-3.5 text-base">
+            <NoteIcon size={19} strokeWidth={2} />
+            Notiz
+          </Link>
+        </div>
+      </div>
 
       {dueGoals.length > 0 && (
         <section>
