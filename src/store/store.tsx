@@ -7,7 +7,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import type { AppData, Employee, Goal, Note, Visit } from "../types";
+import type { AppData, Employee, Goal, Note, SmokeBreak, Visit } from "../types";
 import { emptyData, uid } from "./storage";
 import { supabase } from "../lib/supabase";
 
@@ -40,6 +40,11 @@ interface StoreContextValue {
   updateNote: (id: string, patch: Partial<Note>) => void;
   deleteNote: (id: string) => void;
   notesOf: (employeeId: string) => Note[];
+
+  // Raucherpausen
+  addSmokeBreak: (employeeId: string) => SmokeBreak;
+  deleteSmokeBreak: (id: string) => void;
+  smokeBreaksOf: (employeeId: string) => SmokeBreak[];
 
   // Verwaltung
   replaceAll: (data: AppData) => Promise<void>;
@@ -127,6 +132,18 @@ const noteRow = (n: Note) => ({
   created_at: n.createdAt,
 });
 
+const toSmokeBreak = (r: Row): SmokeBreak => ({
+  id: r.id as string,
+  employeeId: r.employee_id as string,
+  createdAt: r.created_at as string,
+});
+
+const smokeBreakRow = (s: SmokeBreak) => ({
+  id: s.id,
+  employee_id: s.employeeId,
+  created_at: s.createdAt,
+});
+
 const goalRow = (g: Goal) => ({
   id: g.id,
   employee_id: g.employeeId,
@@ -168,13 +185,14 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const reload = useCallback(async () => {
     setLoading(true);
     setError(null);
-    const [emp, vis, gol, not] = await Promise.all([
+    const [emp, vis, gol, not, smk] = await Promise.all([
       supabase.from("employees").select("*"),
       supabase.from("visits").select("*"),
       supabase.from("goals").select("*"),
       supabase.from("notes").select("*"),
+      supabase.from("smoke_breaks").select("*"),
     ]);
-    const firstError = emp.error || vis.error || gol.error || not.error;
+    const firstError = emp.error || vis.error || gol.error || not.error || smk.error;
     if (firstError) {
       setError(firstError.message);
       setLoading(false);
@@ -186,6 +204,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       visits: (vis.data ?? []).map(toVisit),
       goals: (gol.data ?? []).map(toGoal),
       notes: (not.data ?? []).map(toNote),
+      smokeBreaks: (smk.data ?? []).map(toSmokeBreak),
     });
     setLoading(false);
   }, []);
@@ -225,8 +244,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       visits: d.visits.filter((v) => v.employeeId !== id),
       goals: d.goals.filter((g) => g.employeeId !== id),
       notes: d.notes.filter((n) => n.employeeId !== id),
+      smokeBreaks: d.smokeBreaks.filter((s) => s.employeeId !== id),
     }));
-    // visits/goals/notes werden per ON DELETE CASCADE in der DB mitgelöscht
+    // visits/goals/notes/smoke_breaks werden per ON DELETE CASCADE in der DB mitgelöscht
     supabase.from("employees").delete().eq("id", id).then(fail("Mitarbeiter löschen"));
   }, []);
 
@@ -284,9 +304,23 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     supabase.from("notes").delete().eq("id", id).then(fail("Notiz löschen"));
   }, []);
 
+  /* Raucherpausen */
+  const addSmokeBreak = useCallback((employeeId: string) => {
+    const entry: SmokeBreak = { id: uid(), employeeId, createdAt: new Date().toISOString() };
+    setData((d) => ({ ...d, smokeBreaks: [...d.smokeBreaks, entry] }));
+    supabase.from("smoke_breaks").insert(smokeBreakRow(entry)).then(fail("Raucherpause speichern"));
+    return entry;
+  }, []);
+
+  const deleteSmokeBreak = useCallback((id: string) => {
+    setData((d) => ({ ...d, smokeBreaks: d.smokeBreaks.filter((s) => s.id !== id) }));
+    supabase.from("smoke_breaks").delete().eq("id", id).then(fail("Raucherpause löschen"));
+  }, []);
+
   const replaceAll = useCallback(
     async (next: AppData) => {
       // Backup-Import: vorhandene Daten ersetzen
+      await supabase.from("smoke_breaks").delete().neq("id", "00000000-0000-0000-0000-000000000000");
       await supabase.from("notes").delete().neq("id", "00000000-0000-0000-0000-000000000000");
       await supabase.from("goals").delete().neq("id", "00000000-0000-0000-0000-000000000000");
       await supabase.from("visits").delete().neq("id", "00000000-0000-0000-0000-000000000000");
@@ -296,12 +330,15 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       if (next.visits.length) await supabase.from("visits").insert(next.visits.map(visitRow));
       if (next.goals.length) await supabase.from("goals").insert(next.goals.map(goalRow));
       if (next.notes?.length) await supabase.from("notes").insert(next.notes.map(noteRow));
+      if (next.smokeBreaks?.length)
+        await supabase.from("smoke_breaks").insert(next.smokeBreaks.map(smokeBreakRow));
       await reload();
     },
     [reload],
   );
 
   const resetAll = useCallback(async () => {
+    await supabase.from("smoke_breaks").delete().neq("id", "00000000-0000-0000-0000-000000000000");
     await supabase.from("notes").delete().neq("id", "00000000-0000-0000-0000-000000000000");
     await supabase.from("goals").delete().neq("id", "00000000-0000-0000-0000-000000000000");
     await supabase.from("visits").delete().neq("id", "00000000-0000-0000-0000-000000000000");
@@ -340,6 +377,12 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         data.notes
           .filter((n) => n.employeeId === employeeId)
           .sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
+      addSmokeBreak,
+      deleteSmokeBreak,
+      smokeBreaksOf: (employeeId) =>
+        data.smokeBreaks
+          .filter((s) => s.employeeId === employeeId)
+          .sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
       replaceAll,
       resetAll,
     }),
@@ -360,6 +403,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       addNote,
       updateNote,
       deleteNote,
+      addSmokeBreak,
+      deleteSmokeBreak,
       replaceAll,
       resetAll,
     ],

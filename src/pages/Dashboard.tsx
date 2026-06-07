@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useStore } from "../store/store";
 import { Avatar, EmptyState } from "../components/ui";
@@ -10,10 +11,13 @@ import {
   PlusIcon,
   AlertIcon,
   NoteIcon,
+  SmokeIcon,
+  TrashIcon,
 } from "../components/icons";
 
 export default function Dashboard() {
-  const { data } = useStore();
+  const { data, addSmokeBreak, deleteSmokeBreak, smokeBreaksOf } = useStore();
+  const [smokeEmployee, setSmokeEmployee] = useState("");
 
   const openGoals = data.goals.filter((g) => g.status !== "erreicht");
   const today = new Date().toISOString().slice(0, 10);
@@ -42,6 +46,10 @@ export default function Dashboard() {
   ]
     .sort((a, b) => b.ts - a.ts)
     .slice(0, 6);
+
+  // Raucherpausen der ausgewählten Person (neueste zuerst) + Tageszähler.
+  const smokeBreaks = smokeEmployee ? smokeBreaksOf(smokeEmployee) : [];
+  const smokeToday = smokeBreaks.filter((s) => s.createdAt.slice(0, 10) === today).length;
 
   return (
     <div className="space-y-7">
@@ -76,6 +84,68 @@ export default function Dashboard() {
           </Link>
         </div>
       </div>
+
+      {/* Raucherpausen-Tracker */}
+      <section>
+        <h3 className="section-title flex items-center gap-1.5">
+          <SmokeIcon size={15} className="text-slate-500" /> Raucherpausen
+        </h3>
+        <div className="card space-y-3 p-4">
+          <div className="flex gap-2">
+            <select
+              className="input min-w-0 flex-1"
+              value={smokeEmployee}
+              onChange={(e) => setSmokeEmployee(e.target.value)}
+            >
+              <option value="">– Mitarbeiter:in wählen –</option>
+              {[...data.employees]
+                .sort((a, b) => a.name.localeCompare(b.name, "de"))
+                .map((e) => (
+                  <option key={e.id} value={e.id}>
+                    {e.name}
+                  </option>
+                ))}
+            </select>
+            <button
+              type="button"
+              className="btn-primary shrink-0"
+              disabled={!smokeEmployee}
+              onClick={() => addSmokeBreak(smokeEmployee)}
+            >
+              <SmokeIcon size={17} strokeWidth={2} /> Eintragen
+            </button>
+          </div>
+
+          {smokeEmployee && (
+            <p className="text-xs text-slate-500">
+              Heute: <span className="font-semibold text-slate-700">{smokeToday}</span> · Gesamt:{" "}
+              <span className="font-semibold text-slate-700">{smokeBreaks.length}</span>
+              {smokeBreaks[0] ? ` · zuletzt ${formatDateTime(smokeBreaks[0].createdAt)}` : ""}
+            </p>
+          )}
+
+          {smokeEmployee && smokeBreaks.length > 0 && (
+            <ul className="space-y-1.5">
+              {smokeBreaks.slice(0, 5).map((s) => (
+                <li
+                  key={s.id}
+                  className="flex items-center justify-between gap-3 rounded-lg bg-slate-50 px-3 py-2"
+                >
+                  <span className="text-sm text-slate-600">{formatDateTime(s.createdAt)}</span>
+                  <button
+                    type="button"
+                    className="shrink-0 text-slate-400 transition hover:text-red-600"
+                    aria-label="Raucherpause löschen"
+                    onClick={() => deleteSmokeBreak(s.id)}
+                  >
+                    <TrashIcon size={15} />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </section>
 
       {dueGoals.length > 0 && (
         <section>

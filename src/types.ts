@@ -64,6 +64,13 @@ export interface Note {
   createdAt: string;
 }
 
+/** Eine getrackte Raucherpause – reiner Zeitstempel je Knopfdruck. */
+export interface SmokeBreak {
+  id: ID;
+  employeeId: ID;
+  createdAt: string;
+}
+
 export type GoalStatus = "offen" | "in_arbeit" | "erreicht";
 
 /** Ein Entwicklungsziel mit konkreten Maßnahmen. */
@@ -92,4 +99,5 @@ export interface AppData {
   visits: Visit[];
   goals: Goal[];
   notes: Note[];
+  smokeBreaks: SmokeBreak[];
 }

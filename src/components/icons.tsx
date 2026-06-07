@@ -15,6 +15,7 @@ export {
   Sprout as GrowthIcon,
   MessageSquareText as TalkIcon,
   StickyNote as NoteIcon,
+  Cigarette as SmokeIcon,
   ShieldCheck as PrivacyIcon,
   Download as DownloadIcon,
   Upload as UploadIcon,
