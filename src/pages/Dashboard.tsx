@@ -51,6 +51,21 @@ export default function Dashboard() {
   const smokeBreaks = smokeEmployee ? smokeBreaksOf(smokeEmployee) : [];
   const smokeToday = smokeBreaks.filter((s) => s.createdAt.slice(0, 10) === today).length;
 
+  // Gesamtübersicht: Pausen je Mitarbeiter:in (heute & gesamt), nur mit Einträgen.
+  const smokeOverview = data.employees
+    .map((e) => {
+      const all = data.smokeBreaks.filter((s) => s.employeeId === e.id);
+      return {
+        id: e.id,
+        name: e.name,
+        total: all.length,
+        today: all.filter((s) => s.createdAt.slice(0, 10) === today).length,
+      };
+    })
+    .filter((x) => x.total > 0)
+    .sort((a, b) => b.today - a.today || b.total - a.total || a.name.localeCompare(b.name, "de"));
+  const smokeTodayTotal = data.smokeBreaks.filter((s) => s.createdAt.slice(0, 10) === today).length;
+
   return (
     <div className="space-y-7">
       <div>
@@ -145,6 +160,48 @@ export default function Dashboard() {
             </ul>
           )}
         </div>
+
+        {smokeOverview.length > 0 && (
+          <div className="card mt-2 p-4">
+            <div className="mb-1 flex items-center justify-between">
+              <p className="text-sm font-semibold text-slate-700">Übersicht Team</p>
+              <p className="text-xs text-slate-500">
+                Heute gesamt:{" "}
+                <span className="font-semibold text-slate-700">{smokeTodayTotal}</span>
+              </p>
+            </div>
+            <ul className="divide-y divide-slate-100">
+              {smokeOverview.map((x) => (
+                <li key={x.id}>
+                  <button
+                    type="button"
+                    onClick={() => setSmokeEmployee(x.id)}
+                    className={`flex w-full items-center gap-3 py-2 text-left transition ${
+                      smokeEmployee === x.id ? "opacity-100" : "hover:opacity-80"
+                    }`}
+                  >
+                    <Avatar name={x.name} size="sm" />
+                    <span className="min-w-0 flex-1 truncate text-sm font-medium text-slate-800">
+                      {x.name}
+                    </span>
+                    <span
+                      className={`chip ${
+                        x.today > 0
+                          ? "bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-200"
+                          : "bg-slate-100 text-slate-500"
+                      }`}
+                    >
+                      Heute {x.today}
+                    </span>
+                    <span className="w-16 shrink-0 text-right text-xs text-slate-400">
+                      Gesamt {x.total}
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </section>
 
       {dueGoals.length > 0 && (
