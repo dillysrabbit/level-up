@@ -1,9 +1,18 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useStore } from "../store/store";
 import { useAuth } from "../store/auth";
+import { supabase } from "../lib/supabase";
 import { PageHeader } from "../components/ui";
 import { exportData, importData } from "../store/storage";
-import { PrivacyIcon, DownloadIcon, UploadIcon, TrashIcon, UserIcon } from "../components/icons";
+import {
+  PrivacyIcon,
+  DownloadIcon,
+  UploadIcon,
+  TrashIcon,
+  UserIcon,
+  TeamIcon,
+  PlusIcon,
+} from "../components/icons";
 
 export default function Settings() {
   const { data, replaceAll, resetAll } = useStore();
@@ -13,6 +22,62 @@ export default function Settings() {
   const [busy, setBusy] = useState(false);
   const [newPassword, setNewPassword] = useState("");
   const [pwMessage, setPwMessage] = useState<string | null>(null);
+
+  // Zugriffs-Allowlist (Tabelle allowed_emails)
+  const ownEmail = session?.user.email?.toLowerCase() ?? "";
+  const [admins, setAdmins] = useState<string[]>([]);
+  const [adminInput, setAdminInput] = useState("");
+  const [adminMsg, setAdminMsg] = useState<string | null>(null);
+  const [adminBusy, setAdminBusy] = useState(false);
+
+  async function loadAdmins() {
+    const { data, error } = await supabase
+      .from("allowed_emails")
+      .select("email")
+      .order("created_at");
+    if (!error && data) setAdmins(data.map((r) => r.email as string));
+  }
+
+  useEffect(() => {
+    loadAdmins();
+  }, []);
+
+  async function addAdmin(e: React.FormEvent) {
+    e.preventDefault();
+    const email = adminInput.trim().toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setAdminMsg("Bitte eine gültige E-Mail-Adresse eingeben.");
+      return;
+    }
+    if (admins.includes(email)) {
+      setAdminMsg("Diese E-Mail ist bereits freigegeben.");
+      return;
+    }
+    setAdminBusy(true);
+    const { error } = await supabase.from("allowed_emails").insert({ email });
+    setAdminBusy(false);
+    if (error) {
+      setAdminMsg(`Fehler: ${error.message}`);
+      return;
+    }
+    setAdminInput("");
+    setAdminMsg(`${email} freigegeben.`);
+    loadAdmins();
+  }
+
+  async function removeAdmin(email: string) {
+    if (email === ownEmail) return;
+    if (!confirm(`Zugang für ${email} wirklich entfernen?`)) return;
+    setAdminBusy(true);
+    const { error } = await supabase.from("allowed_emails").delete().eq("email", email);
+    setAdminBusy(false);
+    if (error) {
+      setAdminMsg(`Fehler: ${error.message}`);
+      return;
+    }
+    setAdminMsg(`${email} entfernt.`);
+    loadAdmins();
+  }
 
   async function handlePasswordChange(e: React.FormEvent) {
     e.preventDefault();
@@ -93,6 +158,69 @@ export default function Settings() {
           <p className="rounded-xl bg-brand-50 px-3 py-2 text-sm text-brand-700">{pwMessage}</p>
         )}
       </form>
+
+      <div className="card space-y-3 p-4">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
+            <TeamIcon size={20} strokeWidth={2} />
+          </div>
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-slate-800">Zugänge verwalten</p>
+            <p className="text-xs text-slate-500">
+              Freigegebene Konten mit vollem Zugriff (Anmeldung per Google).
+            </p>
+          </div>
+        </div>
+
+        {admins.length > 0 && (
+          <ul className="space-y-1.5">
+            {admins.map((email) => (
+              <li
+                key={email}
+                className="flex items-center justify-between gap-3 rounded-lg bg-slate-50 px-3 py-2"
+              >
+                <span className="min-w-0 truncate text-sm text-slate-700">
+                  {email}
+                  {email === ownEmail && (
+                    <span className="ml-1.5 text-xs text-slate-400">(du)</span>
+                  )}
+                </span>
+                <button
+                  type="button"
+                  className="shrink-0 text-slate-400 transition enabled:hover:text-red-600 disabled:opacity-30"
+                  aria-label="Zugang entfernen"
+                  disabled={adminBusy || email === ownEmail}
+                  onClick={() => removeAdmin(email)}
+                >
+                  <TrashIcon size={15} />
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        <form onSubmit={addAdmin} className="flex gap-2">
+          <input
+            type="email"
+            className="input min-w-0 flex-1"
+            value={adminInput}
+            onChange={(e) => setAdminInput(e.target.value)}
+            placeholder="email@beispiel.de"
+            autoComplete="off"
+          />
+          <button
+            type="submit"
+            className="btn-primary shrink-0"
+            disabled={adminBusy || !adminInput.trim()}
+          >
+            <PlusIcon size={17} strokeWidth={2.2} /> Hinzufügen
+          </button>
+        </form>
+
+        {adminMsg && (
+          <p className="rounded-xl bg-brand-50 px-3 py-2 text-sm text-brand-700">{adminMsg}</p>
+        )}
+      </div>
 
       <div className="card flex gap-3 p-4 text-sm leading-relaxed text-slate-600">
         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
