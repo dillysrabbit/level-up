@@ -56,61 +56,86 @@
     .screen{width:100vw;height:100vh;border:0;border-radius:0;box-shadow:none}
   }
 
-  /* ===== Screen-Inhalt ===== */
+  /* ===== Screen-Layout ===== */
   .pane{position:absolute;inset:0;padding:16px;display:flex;flex-direction:column;
-    animation:fade .32s var(--enter) both}
+    animation:fade .26s var(--enter) both}
   @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
 
-  .top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+  .top{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex:none}
   .eyebrow{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--mut)}
   .count{font-size:10px;letter-spacing:.06em;color:var(--mut)}
+  .h-title{font-size:22px;font-weight:700;letter-spacing:-.02em;line-height:1.02;margin-top:7px;flex:none;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .h-sub{font-size:11px;color:var(--mut);margin-top:3px;flex:none}
 
-  /* Listenzeile (Start) */
-  .pick{margin-top:14px;display:flex;flex-direction:column}
-  .row{display:flex;align-items:center;justify-content:space-between;
-    padding:11px 12px;border-radius:2px;border-bottom:1px solid var(--line);
+  /* Scrollbereich für Listen */
+  .scroll{flex:1;min-height:0;overflow-y:auto;margin:0 -2px;padding:0 2px;-webkit-overflow-scrolling:touch}
+  .scroll::-webkit-scrollbar{display:none}
+  .scroll{scrollbar-width:none}
+
+  /* Generische Zeile / Aktion (Fokus-Ring) */
+  .row{display:flex;align-items:center;justify-content:space-between;gap:8px;
+    padding:10px 11px;border-radius:2px;border-bottom:1px solid var(--line);
     transition:background .12s var(--ease),color .12s var(--ease)}
   .row:last-child{border-bottom:0}
-  .row .name{font-size:15px;font-weight:600}
-  .row .sub{font-size:11px;color:var(--mut)}
-  .row .chev{font-size:12px;color:var(--mut)}
-  .row.on{background:var(--accent);color:var(--acf);border-bottom-color:transparent}
-  .row.on .sub,.row.on .chev{color:rgba(255,255,255,.82)}
+  .row .nm{font-size:15px;font-weight:600;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .row .sub{font-size:11px;color:var(--mut);margin-top:1px}
+  .row .meta{font-size:11px;color:var(--mut);text-align:right;white-space:nowrap;flex:none}
+  .row .chev{font-size:12px;color:var(--mut);flex:none}
+  .row.foc{background:var(--accent);color:var(--acf);border-bottom-color:transparent}
+  .row.foc .sub,.row.foc .meta,.row.foc .chev{color:rgba(255,255,255,.85)}
+  .row.act .nm{font-weight:700}
+  .row.danger.foc{background:#9A968D}
 
-  .title{font-size:26px;font-weight:700;letter-spacing:-.02em;line-height:1;margin-top:8px}
-  .lead{font-size:12px;color:#605D55;line-height:1.45;margin-top:8px}
+  .empty{font-size:13px;color:var(--mut);line-height:1.5;margin-top:18px}
+  .lead{font-size:12px;color:#605D55;line-height:1.45;margin-top:8px;flex:none}
+
+  .foot{margin-top:10px;font-size:10px;letter-spacing:.04em;color:#605D55;flex:none}
+  .foot b{color:var(--accent);font-weight:500}
 
   /* Bewerten */
   .cat{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
   .comp{font-size:17px;font-weight:700;letter-spacing:-.01em;line-height:1.12;margin-top:6px}
-  .valblock{margin-top:auto}
+  .prev{font-size:10px;color:var(--mut);margin-top:5px}
+  .valblock{margin-top:auto;flex:none}
   .valrow{display:flex;align-items:flex-end;gap:12px}
   .num{font-size:52px;font-weight:500;letter-spacing:-.03em;line-height:.82;color:var(--accent)}
-  .scale{padding-bottom:3px}
   .scale .nm{font-size:13px;font-weight:700;letter-spacing:.01em}
   .scale .ds{font-size:11px;color:var(--mut);line-height:1.3;margin-top:2px}
   .seg{display:flex;gap:3px;margin-top:14px}
   .seg i{flex:1;height:6px;border-radius:1px;background:var(--line);transition:background .12s var(--ease)}
   .seg i.fill{background:var(--accent)}
-
-  /* primäre Aktion = Taste */
-  .action{margin-top:14px;background:var(--accent);color:var(--acf);
+  .action{margin-top:13px;background:var(--accent);color:var(--acf);
     font-size:13px;font-weight:700;text-align:center;padding:10px 0;border-radius:2px;cursor:pointer}
 
-  .foot{margin-top:12px;font-size:10px;letter-spacing:.04em;color:#605D55}
-  .foot b{color:var(--accent);font-weight:500}
-
   /* Ergebnis */
-  .overall{display:flex;align-items:flex-end;justify-content:space-between;margin-top:8px}
-  .overall .big{font-size:48px;font-weight:500;letter-spacing:-.03em;line-height:.85}
-  .overall .ofive{font-size:13px;color:var(--mut);padding-bottom:5px}
-  .bars{margin-top:auto;display:flex;flex-direction:column;gap:9px}
-  .bar .hd{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px}
-  .bar .lb{font-size:11px;font-weight:600;line-height:1;max-width:150px}
-  .bar .vl{font-size:11px;color:var(--mut)}
+  .overall{display:flex;align-items:flex-end;justify-content:space-between;margin-top:8px;flex:none}
+  .overall .big{font-size:46px;font-weight:500;letter-spacing:-.03em;line-height:.85}
+  .overall .dl{font-size:13px;padding-bottom:5px;text-align:right;line-height:1.2}
+  .bars{margin-top:auto;display:flex;flex-direction:column;gap:8px;flex:none}
+  .bar .hd{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px;gap:8px}
+  .bar .lb{font-size:11px;font-weight:600;line-height:1.05;max-width:150px}
+  .bar .vl{font-size:11px;color:var(--mut);white-space:nowrap}
   .bar .tr{height:4px;background:var(--line);border-radius:1px;overflow:hidden}
   .bar .fl{height:4px;background:var(--accent);width:0;transition:width .4s var(--enter)}
-  .bar.dim .fl{background:var(--mut)}
+  .up{color:var(--accent)} .dn{color:var(--mut)} .fl0{color:var(--mut)}
+
+  /* Verlauf (Sparkbars) */
+  .spark{display:flex;align-items:flex-end;gap:3px;height:40px;margin-top:6px;flex:none}
+  .spark .b{flex:1;background:var(--line);border-radius:1px;min-height:2px}
+  .spark .b.last{background:var(--accent)}
+
+  /* Namens-Eingabe */
+  .nameval{font-size:24px;font-weight:700;letter-spacing:-.01em;margin-top:auto;min-height:30px;
+    border-bottom:2px solid var(--accent);padding-bottom:6px}
+  .caret{display:inline-block;width:2px;height:22px;background:var(--accent);vertical-align:-3px;
+    animation:blink 1s steps(1) infinite;margin-left:1px}
+  @keyframes blink{0%,49%{opacity:1}50%,100%{opacity:0}}
+  .strip{display:flex;align-items:center;justify-content:center;gap:0;margin:16px 0 4px;flex:none;height:46px}
+  .strip .ch{flex:none;width:30px;text-align:center;font-family:'IBM Plex Mono',monospace;
+    font-size:16px;color:var(--mut);transition:all .1s var(--ease)}
+  .strip .ch.c{font-size:26px;font-weight:600;color:var(--accent);width:40px}
+  .strip .ch.c2{font-size:19px;color:var(--fg)}
 </style>
 </head>
 <body>
@@ -128,16 +153,15 @@
 <script>
 /* ============================================================================
    SKILL-CHECK — eine r1 Creation, abgeleitet aus der WebApp „LevelUp“.
-   Geht den Kompetenzkatalog Schritt für Schritt durch: das Scrollrad stellt
-   die Entwicklungsstufe 1–5, die Taste bestätigt und blättert weiter. Am Ende
-   die Skill-Matrix in Kleinform (Durchschnitt je Kompetenz-Dimension).
+   Mitarbeiter:innen anlegen, je Person Visiten (Kompetenz-Checks) speichern
+   und die Entwicklung über die Zeit nachvollziehen — vollständig offline im
+   localStorage des Geräts. Bedienung: Scrollrad bewegt, Taste wählt,
+   langer Tastendruck = zurück.
    Gestaltet im r1-Design-System „Papier“ (Dieter Rams / BRAUN).
 ============================================================================ */
 
-// Kompetenzkatalog — 1:1 aus src/data/competencyFramework.ts der WebApp.
+/* ---- Kompetenzkatalog — 1:1 aus src/data/competencyFramework.ts ---- */
 const CATALOG = {"fachkraft":[{"label":"Fachkompetenz","competencies":["Grundpflege & Mobilisation","Behandlungspflege","Medikamentenmanagement","Wundversorgung & -dokumentation","Hygiene & Infektionsschutz","Notfall- & Risikomanagement"]},{"label":"Methodenkompetenz","competencies":["Pflegeprozess & -planung","Pflegedokumentation","Arbeitsorganisation & Delegation"]},{"label":"Sozial-kommunikative Kompetenz","competencies":["Beziehung zu Bewohner:innen","Angehörigenarbeit","Team & Anleitung"]},{"label":"Personale Kompetenz","competencies":["Eigenverantwortung","Belastbarkeit & Resilienz","Lern- & Reflexionsbereitschaft"]}],"hilfskraft":[{"label":"Grundpflege & Unterstützung","competencies":["Körperpflege & Unterstützung","Mobilisation & Lagerung","Ernährung & Flüssigkeit","Hygiene im Alltag"]},{"label":"Beobachten & Melden","competencies":["Beobachten von Veränderungen","Melden & Weitergeben","Korrekte Anwendung des Berichteblattes","Umgang mit Risiken"]},{"label":"Sozial-kommunikative Kompetenz","competencies":["Beziehung & Kommunikation","Umgang mit Angehörigen","Teamarbeit"]},{"label":"Personale Kompetenz","competencies":["Zuverlässigkeit & Pünktlichkeit","Sorgfalt & Hygienebewusstsein","Lernbereitschaft"]}]};
-
-// Entwicklungsskala — 1:1 aus LEVEL_SCALE der WebApp.
 const SCALE = {
   1:{nm:"Einarbeitung", ds:"Benötigt noch Anleitung und enge Begleitung"},
   2:{nm:"Grundlagen",   ds:"Führt Aufgaben mit Unterstützung sicher aus"},
@@ -145,61 +169,171 @@ const SCALE = {
   4:{nm:"Routiniert",   ds:"Handelt eigenverantwortlich, auch in komplexen Lagen"},
   5:{nm:"Vorbild",      ds:"Expertenniveau, kann andere anleiten und schulen"},
 };
-const TYPES = [
-  {id:"fachkraft", name:"Fachkraft", sub:"QS 3 · examiniert"},
-  {id:"hilfskraft",name:"Hilfskraft", sub:"Assistenz · Helfer:in"},
-];
+const TYPES = {
+  fachkraft: {name:"Fachkraft",  sub:"QS 3 · examiniert"},
+  hilfskraft:{name:"Hilfskraft", sub:"Assistenz · Helfer:in"},
+};
+const ALPHABET = ("ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÜ -".split("")).concat(["⌫","✓"]);
 
+/* ---- Persistenz (localStorage) ---- */
+const KEY = "r1.skillcheck.v1";
+let DB = {employees:[]};
+function load(){
+  try{ const raw = localStorage.getItem(KEY); if(raw){ const d=JSON.parse(raw); if(d&&Array.isArray(d.employees)) DB=d; } }
+  catch(e){ DB={employees:[]}; }
+}
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(DB)); }catch(e){} }
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+
+/* ---- Helfer ---- */
 const app = document.getElementById("app");
 const esc = s => String(s).replace(/[&<>]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
 const pad2 = n => n<10 ? "0"+n : ""+n;
-
-const S = {
-  view:"start",     // start | rate | done
-  typeSel:0,        // Auswahl auf dem Startscreen
-  items:[],         // [{cat, comp}] flachgelegt
-  idx:0,
-  levels:[],        // Stufe je item (1–5)
-};
-
-/* ---------- Ableitungen ---------- */
-function build(typeId){
-  const items = [];
-  for(const cat of CATALOG[typeId])
-    for(const comp of cat.competencies) items.push({cat:cat.label, comp});
-  S.items = items;
-  S.levels = items.map(()=>3); // Start in der Mitte: „Sicher“
-  S.idx = 0;
+const clamp = (v,a,b)=> Math.max(a, Math.min(b, v));
+function fmtDate(iso){ const d=new Date(iso); return pad2(d.getDate())+"."+pad2(d.getMonth()+1)+"."+String(d.getFullYear()).slice(2); }
+function flatten(type){
+  const out=[]; for(const c of CATALOG[type]) for(const comp of c.competencies) out.push({cat:c.label, comp}); return out;
 }
-function categoryAverages(typeId){
-  // Skill-Matrix in Kleinform: Mittelwert je Kompetenz-Dimension.
-  return CATALOG[typeId].map(cat => {
-    const vals = S.items
-      .map((it,i)=> it.cat===cat.label ? S.levels[i] : null)
-      .filter(v=>v!==null);
+function computeResult(levels, type){
+  const cats = CATALOG[type].map(cat=>{
+    const items = flatten(type);
+    const vals = levels.filter((_,i)=> items[i].cat===cat.label);
     const avg = vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length : null;
     return {label:cat.label, avg};
   });
+  const overall = levels.length ? levels.reduce((a,b)=>a+b,0)/levels.length : null;
+  return {overall, cats};
 }
-function overall(){
-  if(!S.levels.length) return null;
-  return S.levels.reduce((a,b)=>a+b,0)/S.levels.length;
+function emp(){ return DB.employees.find(e=>e.id===S.curEmp); }
+function lastVisit(e){ return e && e.visits.length ? e.visits[e.visits.length-1] : null; }
+function deltaTag(d){
+  if(d===null||d===undefined) return "";
+  if(d>0.049) return '<span class="up">▲ '+d.toFixed(1)+'</span>';
+  if(d<-0.049) return '<span class="dn">▼ '+Math.abs(d).toFixed(1)+'</span>';
+  return '<span class="fl0">· 0.0</span>';
 }
 
-/* ---------- Views ---------- */
-function viewStart(){
-  const rows = TYPES.map((t,i)=>`
-    <div class="row ${i===S.typeSel?"on":""}" data-type="${i}">
-      <div><div class="name">${esc(t.name)}</div><div class="sub">${esc(t.sub)}</div></div>
-      <span class="chev mono">▸</span>
-    </div>`).join("");
+/* ---- App-Zustand ---- */
+const S = {
+  screen:"list",   // list | name | type | rate | result | visit | trend | confirm
+  stack:[],        // Navigations-Historie (für „zurück“)
+  focus:0,
+  targets:[],
+  curEmp:null,
+  // Entwurf neue:r Mitarbeiter:in
+  draftName:"", charIdx:0,
+  // laufende Visite
+  type:null, items:[], levels:[], idx:0, baseline:null,
+  // Ansicht einer gespeicherten Visite
+  viewVisit:null,
+};
+
+function go(screen, keepStack){
+  if(!keepStack) S.stack.push(S.screen);
+  S.screen=screen; S.focus=0; render();
+}
+function back(){
+  if(S.screen==="rate" || S.screen==="result"){ // Visite abbrechen/fertig → Detail
+    S.screen = emp() ? "detail" : "list"; S.focus=0; render(); return;
+  }
+  const prev = S.stack.pop();
+  S.screen = prev || "list"; S.focus=0; render();
+}
+
+/* ===================== Screens ===================== */
+function targetRow(i, label, opts){
+  opts=opts||{};
+  const foc = i===S.focus ? " foc" : "";
+  const cls = "row"+(opts.act?" act":"")+(opts.danger?" danger":"")+foc;
+  const meta = opts.meta ? `<span class="meta">${opts.meta}</span>` : "";
+  const chev = opts.chev===false ? "" : `<span class="chev mono">${opts.chev||"▸"}</span>`;
+  const sub = opts.sub ? `<div class="sub">${esc(opts.sub)}</div>` : "";
+  return `<div class="${cls}" data-i="${i}"><div style="min-width:0"><div class="nm">${esc(label)}</div>${sub}</div>${meta}${chev}</div>`;
+}
+
+function viewList(){
+  S.targets=[];
+  const rows = DB.employees.map((e,idx)=>{
+    S.targets.push({kind:"emp", id:e.id});
+    const lv = lastVisit(e);
+    const meta = lv ? `Ø ${lv.overall.toFixed(1)} · ${e.visits.length}×` : "neu";
+    return targetRow(S.targets.length-1, e.name, {sub:TYPES[e.type].name, meta});
+  }).join("");
+  S.targets.push({kind:"add"});
+  const addRow = targetRow(S.targets.length-1, "Neue:r Mitarbeiter:in", {act:true, chev:"+"});
+  const empty = DB.employees.length ? "" :
+    `<div class="empty">Noch keine Mitarbeiter:innen.<br>Lege unten die erste Person an.</div>`;
   return `
     <div class="pane">
-      <div class="top"><span class="eyebrow mono">Skill-Check</span><span class="count mono">LevelUp</span></div>
-      <div class="title">Kompetenz‑Check</div>
-      <div class="lead">Eine Visite, Schritt für Schritt. Welcher Katalog?</div>
-      <div class="pick">${rows}</div>
-      <div class="foot mono"><b>RAD</b> ▸ wählen&nbsp;&nbsp;·&nbsp;&nbsp;<b>TASTE</b> ▸ start</div>
+      <div class="top"><span class="eyebrow mono">Skill-Check</span><span class="count mono">${DB.employees.length} Person${DB.employees.length===1?"":"en"}</span></div>
+      <div class="h-title">Team</div>
+      <div class="scroll" id="scroll">${rows}${empty}${addRow}</div>
+      <div class="foot mono"><b>RAD</b> ▸ wählen&nbsp;·&nbsp;<b>TASTE</b> ▸ öffnen</div>
+    </div>`;
+}
+
+function viewName(){
+  const n = S.draftName;
+  // Zeichenstreifen: aktuelles Zeichen mittig, Nachbarn gedimmt
+  const N = ALPHABET.length;
+  let cells="";
+  for(let o=-3;o<=3;o++){
+    const idx=((S.charIdx+o)%N+N)%N;
+    const c = ALPHABET[idx]==="-" ? "␣".replace("␣"," ") : ALPHABET[idx];
+    const disp = ALPHABET[idx]==="-" ? "␣" : ALPHABET[idx];
+    const cls = o===0 ? "ch c" : (Math.abs(o)===1 ? "ch c2" : "ch");
+    cells += `<div class="${cls}">${esc(disp)}</div>`;
+  }
+  return `
+    <div class="pane">
+      <div class="top"><span class="eyebrow mono">Neu · Name</span><span class="count mono">${n.length} Z.</span></div>
+      <div class="lead">Rad wählt den Buchstaben, Taste setzt ihn. <b style="color:var(--accent)">✓</b> schließt ab.</div>
+      <div class="nameval">${esc(n)}<span class="caret"></span></div>
+      <div class="strip">${cells}</div>
+      <div class="foot mono"><b>RAD</b> ▸ buchstabe&nbsp;·&nbsp;<b>TASTE</b> ▸ setzen</div>
+    </div>`;
+}
+
+function viewType(){
+  S.targets=[];
+  const rows = Object.keys(TYPES).map(t=>{
+    S.targets.push({kind:"type", type:t});
+    return targetRow(S.targets.length-1, TYPES[t].name, {sub:TYPES[t].sub});
+  }).join("");
+  return `
+    <div class="pane">
+      <div class="top"><span class="eyebrow mono">Neu · Katalog</span><span class="count mono">${esc(S.draftName)}</span></div>
+      <div class="h-title">Welcher Katalog?</div>
+      <div class="scroll">${rows}</div>
+      <div class="foot mono"><b>RAD</b> ▸ wählen&nbsp;·&nbsp;<b>TASTE</b> ▸ anlegen</div>
+    </div>`;
+}
+
+function viewDetail(){
+  const e = emp(); S.targets=[];
+  const lv = lastVisit(e);
+  const prev = e.visits.length>1 ? e.visits[e.visits.length-2] : null;
+  const dl = (lv&&prev) ? deltaTag(lv.overall-prev.overall) : "";
+  // Aktionen + Visitenliste (jüngste zuerst)
+  let body="";
+  S.targets.push({kind:"newVisit"});
+  body += targetRow(S.targets.length-1, "Neue Visite", {act:true});
+  if(e.visits.length>=2){ S.targets.push({kind:"trend"}); body += targetRow(S.targets.length-1, "Entwicklung", {act:true, chev:"▸"}); }
+  const visitsHtml = [...e.visits].reverse().map(v=>{
+    S.targets.push({kind:"visit", id:v.id});
+    return targetRow(S.targets.length-1, fmtDate(v.date), {meta:"Ø "+v.overall.toFixed(1), chev:"▸"});
+  }).join("");
+  const histLabel = e.visits.length ? `<div class="eyebrow mono" style="margin:12px 0 4px">Verlauf · ${e.visits.length}</div>` :
+    `<div class="empty">Noch keine Visite. Starte oben die erste.</div>`;
+  S.targets.push({kind:"delete"});
+  const del = targetRow(S.targets.length-1, "Mitarbeiter:in löschen", {danger:true, chev:"×"});
+  return `
+    <div class="pane">
+      <div class="top"><span class="eyebrow mono">${esc(TYPES[e.type].name)}</span><span class="count mono">${lv?("Ø "+lv.overall.toFixed(1)):"–"}</span></div>
+      <div class="h-title">${esc(e.name)}</div>
+      <div class="h-sub">${lv ? ("Letzte Visite "+fmtDate(lv.date)+"  ") : "Noch keine Visite"} ${dl}</div>
+      <div class="scroll" id="scroll">${body}${histLabel}${visitsHtml}<div style="height:8px"></div>${del}</div>
+      <div class="foot mono"><b>TASTE</b> ▸ wählen&nbsp;·&nbsp;<b>HALTEN</b> ▸ zurück</div>
     </div>`;
 }
 
@@ -209,107 +343,226 @@ function viewRate(){
   const sc = SCALE[lvl];
   const last = S.idx === S.items.length-1;
   const seg = [1,2,3,4,5].map(n=>`<i class="${n<=lvl?"fill":""}"></i>`).join("");
+  const base = S.baseline ? S.baseline[S.idx] : null;
+  const prevTxt = base ? `<div class="prev mono">zuletzt: ${base} · ${SCALE[base].nm}</div>` : "";
   return `
     <div class="pane">
-      <div class="top">
-        <span class="cat mono">${esc(it.cat)}</span>
-        <span class="count mono">${pad2(S.idx+1)} / ${pad2(S.items.length)}</span>
-      </div>
+      <div class="top"><span class="cat mono">${esc(it.cat)}</span><span class="count mono">${pad2(S.idx+1)} / ${pad2(S.items.length)}</span></div>
       <div class="comp">${esc(it.comp)}</div>
+      ${prevTxt}
       <div class="valblock">
         <div class="valrow">
           <div class="num mono">${lvl}</div>
-          <div class="scale">
-            <div class="nm">${esc(sc.nm)}</div>
-            <div class="ds">${esc(sc.ds)}</div>
-          </div>
+          <div class="scale"><div class="nm">${esc(sc.nm)}</div><div class="ds">${esc(sc.ds)}</div></div>
         </div>
         <div class="seg">${seg}</div>
-        <div class="action" data-act="next">${last?"Auswerten":"Weiter"}</div>
-        <div class="foot mono"><b>RAD</b> ▸ stufe&nbsp;&nbsp;·&nbsp;&nbsp;<b>TASTE</b> ▸ ${last?"fertig":"weiter"}</div>
+        <div class="action" data-act="next">${last?"Visite speichern":"Weiter"}</div>
+        <div class="foot mono"><b>RAD</b> ▸ stufe&nbsp;·&nbsp;<b>TASTE</b> ▸ ${last?"speichern":"weiter"}</div>
       </div>
     </div>`;
 }
 
-function viewDone(){
-  const t = TYPES[S.typeSel].id;
-  const cats = categoryAverages(t);
-  const ov = overall();
-  const bars = cats.map(c=>{
+function resultPane(res, prevRes, opts){
+  opts=opts||{};
+  const ovDelta = (prevRes && prevRes.overall!=null) ? deltaTag(res.overall-prevRes.overall) : '<span class="fl0">erste Visite</span>';
+  const bars = res.cats.map(c=>{
+    const pv = prevRes ? (prevRes.cats.find(x=>x.label===c.label)||{}).avg : null;
+    const d = (c.avg!=null&&pv!=null) ? deltaTag(c.avg-pv) : "";
     const pct = c.avg ? (c.avg/5*100) : 0;
-    return `
-      <div class="bar">
-        <div class="hd"><span class="lb">${esc(c.label)}</span><span class="vl mono">${c.avg?c.avg.toFixed(1):"–"}</span></div>
+    return `<div class="bar">
+        <div class="hd"><span class="lb">${esc(c.label)}</span><span class="vl mono">${c.avg?c.avg.toFixed(1):"–"} ${d}</span></div>
         <div class="tr"><div class="fl" style="width:${pct}%"></div></div>
       </div>`;
   }).join("");
   return `
     <div class="pane">
-      <div class="top"><span class="eyebrow mono">Ergebnis · ${esc(TYPES[S.typeSel].name)}</span><span class="count mono">Ø 1–5</span></div>
-      <div class="overall">
-        <span class="big mono">${ov?ov.toFixed(1):"–"}</span>
-        <span class="ofive mono">Gesamt</span>
-      </div>
+      <div class="top"><span class="eyebrow mono">${esc(opts.eyebrow||"Ergebnis")}</span><span class="count mono">${esc(opts.right||"Ø 1–5")}</span></div>
+      <div class="overall"><span class="big mono">${res.overall?res.overall.toFixed(1):"–"}</span><span class="dl mono">${ovDelta}</span></div>
       <div class="bars">${bars}</div>
-      <div class="foot mono"><b>TASTE</b> ▸ neue Visite</div>
+      <div class="foot mono"><b>TASTE</b> ▸ ${esc(opts.footAction||"weiter")}&nbsp;·&nbsp;<b>HALTEN</b> ▸ zurück</div>
     </div>`;
 }
 
+function viewResult(){ // direkt nach dem Speichern
+  const e = emp();
+  const v = e.visits[e.visits.length-1];
+  const prev = e.visits.length>1 ? e.visits[e.visits.length-2] : null;
+  S.targets=[{kind:"toDetail"}];
+  return resultPane({overall:v.overall, cats:v.cats}, prev?{overall:prev.overall,cats:prev.cats}:null,
+    {eyebrow:"Gespeichert · "+e.name, right:fmtDate(v.date), footAction:"fertig"});
+}
+function viewVisit(){ // gespeicherte Visite ansehen
+  const e = emp();
+  const i = e.visits.findIndex(v=>v.id===S.viewVisit);
+  const v = e.visits[i]; const prev = i>0 ? e.visits[i-1] : null;
+  S.targets=[{kind:"back"}];
+  return resultPane({overall:v.overall, cats:v.cats}, prev?{overall:prev.overall,cats:prev.cats}:null,
+    {eyebrow:"Visite · "+fmtDate(v.date), right:"Ø 1–5", footAction:"zurück"});
+}
+
+function viewTrend(){
+  const e = emp(); S.targets=[{kind:"back"}];
+  const vs = e.visits;
+  const first = vs[0], last = vs[vs.length-1];
+  const max = Math.max(...vs.map(v=>v.overall), 5);
+  const spark = vs.map(v=>{
+    const h = Math.round(v.overall/5*100);
+    return `<div class="b ${v===last?"last":""}" style="height:${h}%" title="${fmtDate(v.date)}"></div>`;
+  }).join("");
+  const rows = first.cats.map(c=>{
+    const lc = (last.cats.find(x=>x.label===c.label)||{}).avg;
+    const fc = c.avg;
+    const d = (lc!=null&&fc!=null) ? deltaTag(lc-fc) : "";
+    const pct = lc ? (lc/5*100) : 0;
+    return `<div class="bar">
+        <div class="hd"><span class="lb">${esc(c.label)}</span><span class="vl mono">${lc?lc.toFixed(1):"–"} ${d}</span></div>
+        <div class="tr"><div class="fl" style="width:${pct}%"></div></div>
+      </div>`;
+  }).join("");
+  const ovd = deltaTag(last.overall-first.overall);
+  return `
+    <div class="pane">
+      <div class="top"><span class="eyebrow mono">Entwicklung · ${esc(e.name)}</span><span class="count mono">${vs.length}×</span></div>
+      <div class="overall"><span class="big mono">${last.overall.toFixed(1)}</span><span class="dl mono">seit Start<br>${ovd}</span></div>
+      <div class="spark">${spark}</div>
+      <div class="scroll" style="margin-top:12px"><div class="bars">${rows}</div></div>
+      <div class="foot mono"><b>HALTEN</b> ▸ zurück · Δ je Dimension</div>
+    </div>`;
+}
+
+function viewConfirm(){
+  const e = emp(); S.targets=[{kind:"cancel"},{kind:"confirmDelete"}];
+  return `
+    <div class="pane">
+      <div class="top"><span class="eyebrow mono">Löschen</span><span class="count mono">${e.visits.length} Visiten</span></div>
+      <div class="h-title">Sicher?</div>
+      <div class="lead">„${esc(e.name)}“ und alle Visiten werden unwiderruflich entfernt.</div>
+      <div class="scroll" style="margin-top:auto;flex:none">
+        ${targetRow(0,"Abbrechen",{act:true,chev:"‹"})}
+        ${targetRow(1,"Endgültig löschen",{danger:true,act:true,chev:"×"})}
+      </div>
+      <div class="foot mono"><b>RAD</b> ▸ wählen&nbsp;·&nbsp;<b>TASTE</b> ▸ bestätigen</div>
+    </div>`;
+}
+
+/* ---- Render-Dispatch ---- */
 function render(){
-  app.innerHTML = S.view==="start" ? viewStart()
-                : S.view==="rate"  ? viewRate()
-                : viewDone();
+  const v = {list:viewList,name:viewName,type:viewType,detail:viewDetail,rate:viewRate,
+             result:viewResult,visit:viewVisit,trend:viewTrend,confirm:viewConfirm}[S.screen];
+  app.innerHTML = v();
+  // Fokus sichtbar halten
+  const f = app.querySelector(".row.foc");
+  if(f && f.scrollIntoView) f.scrollIntoView({block:"nearest"});
 }
 
-/* ---------- Eingaben: Scrollrad + Taste ---------- */
-function wheel(dir){ // dir: +1 nach oben/rechts, -1 nach unten/links
-  if(S.view==="start"){
-    S.typeSel = (S.typeSel + (dir>0?-1:1) + TYPES.length) % TYPES.length;
-    render();
-  } else if(S.view==="rate"){
-    const cur = S.levels[S.idx];
-    const next = Math.min(5, Math.max(1, cur + (dir>0?1:-1)));
+/* ===================== Eingaben ===================== */
+function moveFocus(dir){ // dir +1 hoch, -1 runter
+  if(!S.targets.length) return;
+  S.focus = clamp(S.focus + (dir>0?-1:1), 0, S.targets.length-1);
+  render();
+}
+function wheel(dir){
+  if(S.screen==="rate"){
+    const cur=S.levels[S.idx], next=clamp(cur+(dir>0?1:-1),1,5);
     if(next!==cur){ S.levels[S.idx]=next; render(); }
+  } else if(S.screen==="name"){
+    const N=ALPHABET.length; S.charIdx=((S.charIdx+(dir>0?-1:1))%N+N)%N; render();
+  } else {
+    moveFocus(dir);
   }
 }
-function press(){ // Taste / primäre Aktion
-  if(S.view==="start"){
-    build(TYPES[S.typeSel].id);
-    S.view="rate"; render();
-  } else if(S.view==="rate"){
+function commitChar(){
+  const ch = ALPHABET[S.charIdx];
+  if(ch==="✓"){ if(S.draftName.trim().length){ S.draftName=S.draftName.trim(); go("type"); } return; }
+  if(ch==="⌫"){ S.draftName=S.draftName.slice(0,-1); render(); return; }
+  if(S.draftName.length>=22) return;
+  S.draftName += (ch==="-"?" ":ch);
+  render();
+}
+function activate(){
+  const t=S.targets[S.focus];
+  if(!t) return;
+  switch(t.kind){
+    case "emp":   S.curEmp=t.id; go("detail"); break;
+    case "add":   S.draftName=""; S.charIdx=0; go("name"); break;
+    case "type":  {
+      const e={id:uid(), name:S.draftName, type:t.type, createdAt:new Date().toISOString(), visits:[]};
+      DB.employees.push(e); save(); S.curEmp=e.id;
+      S.stack=["list"]; go("detail",true); break;
+    }
+    case "newVisit": startVisit(); break;
+    case "visit": S.viewVisit=t.id; go("visit"); break;
+    case "trend": go("trend"); break;
+    case "delete": go("confirm"); break;
+    case "cancel": back(); break;
+    case "confirmDelete": {
+      DB.employees=DB.employees.filter(e=>e.id!==S.curEmp); save();
+      S.curEmp=null; S.stack=[]; S.screen="list"; S.focus=0; render(); break;
+    }
+    case "toDetail": S.screen="detail"; S.focus=0; render(); break;
+    case "back": back(); break;
+  }
+}
+function startVisit(){
+  const e=emp(); S.type=e.type; S.items=flatten(e.type);
+  const lv=lastVisit(e);
+  S.baseline = lv ? lv.levels.slice() : null;
+  S.levels = lv ? lv.levels.slice() : S.items.map(()=>3); // von der letzten Visite aus weiterentwickeln
+  S.idx=0; go("rate");
+}
+function saveVisit(){
+  const e=emp();
+  const res=computeResult(S.levels, e.type);
+  e.visits.push({ id:uid(), date:new Date().toISOString(), levels:S.levels.slice(),
+                  overall:res.overall, cats:res.cats });
+  save();
+  S.screen="result"; S.focus=0; render();
+}
+function press(){
+  if(S.screen==="rate"){
     if(S.idx < S.items.length-1){ S.idx++; render(); }
-    else { S.view="done"; render(); }
-  } else { // done
-    S.view="start"; render();
+    else saveVisit();
+  } else if(S.screen==="name"){
+    commitChar();
+  } else {
+    activate();
   }
 }
 
-/* ---------- Hardware (rabbit r1) + Vorschau-Fallbacks ---------- */
-// r1-Hardware: Scrollrad & Seitentaste werden als window-Events geliefert.
+/* ---- Hardware (rabbit r1) ---- */
 window.addEventListener("scrollUp",   ()=>wheel(+1));
 window.addEventListener("scrollDown", ()=>wheel(-1));
 window.addEventListener("sideClick",  press);
-window.addEventListener("longPressEnd", press);
+window.addEventListener("longPressEnd", back);   // langer Druck = zurück
 
-// Desktop-Vorschau: Mausrad, Pfeiltasten, Enter/Leertaste, Klick.
+/* ---- Vorschau-Fallbacks: Mausrad, Tastatur, Klick ---- */
 let acc=0;
 window.addEventListener("wheel", e=>{
-  acc += e.deltaY;
-  if(acc <= -28){ acc=0; wheel(+1); }
-  else if(acc >= 28){ acc=0; wheel(-1); }
-}, {passive:true});
+  acc+=e.deltaY;
+  if(acc<=-26){ acc=0; wheel(+1); } else if(acc>=26){ acc=0; wheel(-1); }
+},{passive:true});
 window.addEventListener("keydown", e=>{
+  // Direkt-Tippen im Namens-Screen (Desktop / r1-Tastatur)
+  if(S.screen==="name"){
+    if(e.key==="Enter"){ e.preventDefault(); if(S.draftName.trim().length){ S.draftName=S.draftName.trim(); go("type"); } return; }
+    if(e.key==="Backspace"){ e.preventDefault(); S.draftName=S.draftName.slice(0,-1); render(); return; }
+    if(e.key===" "){ e.preventDefault(); if(S.draftName.length<22) S.draftName+=" "; render(); return; }
+    if(e.key.length===1 && /[a-zA-ZäöüÄÖÜ]/.test(e.key)){ e.preventDefault(); if(S.draftName.length<22) S.draftName+=e.key.toUpperCase(); render(); return; }
+    // sonst Pfeile → Zeichen wählen
+  }
   if(e.key==="ArrowUp"||e.key==="ArrowRight"){ e.preventDefault(); wheel(+1); }
   else if(e.key==="ArrowDown"||e.key==="ArrowLeft"){ e.preventDefault(); wheel(-1); }
   else if(e.key==="Enter"||e.key===" "){ e.preventDefault(); press(); }
+  else if(e.key==="Escape"||e.key==="Backspace"){ e.preventDefault(); back(); }
 });
 app.addEventListener("click", e=>{
-  const r = e.target.closest("[data-type]");
-  if(r){ S.typeSel = +r.dataset.type; render();
-         if(e.detail>0){ press(); } return; } // Klick auf Zeile = wählen + start
+  const row=e.target.closest("[data-i]");
+  if(row){ S.focus=+row.dataset.i; render(); if(e.detail>0) press(); return; }
   if(e.target.closest("[data-act='next']")) press();
 });
 
+/* ---- Start ---- */
+load();
 render();
 </script>
 </body>
