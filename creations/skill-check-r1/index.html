@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Skill-Check · r1 Creation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* ===== r1 Creations · Design System „Papier“ (Dieter Rams / BRAUN) ===== */
+  :root{
+    --bg:#E7E4DE;    /* Screen-Fläche */
+    --sf:#F0EEE9;    /* erhöhte Fläche */
+    --fg:#1B1A17;    /* Tinte */
+    --mut:#8A867E;   /* Grau, sekundär */
+    --line:#C7C3BA;  /* Hairline */
+    --accent:#D75A1E;/* BRAUN-Orange — genau ein aktives Element pro Screen */
+    --acf:#FFFFFF;   /* Schrift auf Akzent */
+    --ease:cubic-bezier(.4,0,.2,1);
+    --enter:cubic-bezier(.2,.7,.2,1);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    background:#D7D4CC; /* Beton — Bühne hinter dem Gerät */
+    font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;
+    color:var(--fg);
+    -webkit-font-smoothing:antialiased;
+    display:flex;align-items:center;justify-content:center;
+    min-height:100%;
+    user-select:none;-webkit-user-select:none;
+  }
+  .mono{font-family:'IBM Plex Mono',monospace}
+
+  /* ---- Gerät: nur in der Desktop-Vorschau sichtbar ---- */
+  .stage{display:flex;flex-direction:column;align-items:center;gap:14px}
+  .device{display:flex;align-items:stretch}
+  .screen{
+    position:relative;width:240px;height:282px;flex:none;
+    background:var(--bg);color:var(--fg);overflow:hidden;
+    border-radius:6px;border:1px solid rgba(0,0,0,.18);
+    box-shadow:0 2px 0 rgba(0,0,0,.08);
+  }
+  .controls{display:flex;flex-direction:column;justify-content:center;gap:18px;margin-left:8px}
+  .wheel{width:12px;height:120px;border-radius:6px;
+    background:repeating-linear-gradient(#7C786F 0 2px,#B7B3AB 2px 4px)}
+  .key{width:12px;height:46px;border-radius:6px;background:var(--accent)}
+  .caption{font-size:11px;color:#605D55}
+  .caption b{color:var(--accent);font-weight:500}
+
+  /* ---- Auf dem echten r1 (schmaler Viewport) füllt der Screen alles ---- */
+  @media (max-width:380px){
+    body{background:var(--bg);display:block}
+    .stage{gap:0}
+    .controls,.caption{display:none}
+    .screen{width:100vw;height:100vh;border:0;border-radius:0;box-shadow:none}
+  }
+
+  /* ===== Screen-Inhalt ===== */
+  .pane{position:absolute;inset:0;padding:16px;display:flex;flex-direction:column;
+    animation:fade .32s var(--enter) both}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+  .top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+  .eyebrow{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--mut)}
+  .count{font-size:10px;letter-spacing:.06em;color:var(--mut)}
+
+  /* Listenzeile (Start) */
+  .pick{margin-top:14px;display:flex;flex-direction:column}
+  .row{display:flex;align-items:center;justify-content:space-between;
+    padding:11px 12px;border-radius:2px;border-bottom:1px solid var(--line);
+    transition:background .12s var(--ease),color .12s var(--ease)}
+  .row:last-child{border-bottom:0}
+  .row .name{font-size:15px;font-weight:600}
+  .row .sub{font-size:11px;color:var(--mut)}
+  .row .chev{font-size:12px;color:var(--mut)}
+  .row.on{background:var(--accent);color:var(--acf);border-bottom-color:transparent}
+  .row.on .sub,.row.on .chev{color:rgba(255,255,255,.82)}
+
+  .title{font-size:26px;font-weight:700;letter-spacing:-.02em;line-height:1;margin-top:8px}
+  .lead{font-size:12px;color:#605D55;line-height:1.45;margin-top:8px}
+
+  /* Bewerten */
+  .cat{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+  .comp{font-size:17px;font-weight:700;letter-spacing:-.01em;line-height:1.12;margin-top:6px}
+  .valblock{margin-top:auto}
+  .valrow{display:flex;align-items:flex-end;gap:12px}
+  .num{font-size:52px;font-weight:500;letter-spacing:-.03em;line-height:.82;color:var(--accent)}
+  .scale{padding-bottom:3px}
+  .scale .nm{font-size:13px;font-weight:700;letter-spacing:.01em}
+  .scale .ds{font-size:11px;color:var(--mut);line-height:1.3;margin-top:2px}
+  .seg{display:flex;gap:3px;margin-top:14px}
+  .seg i{flex:1;height:6px;border-radius:1px;background:var(--line);transition:background .12s var(--ease)}
+  .seg i.fill{background:var(--accent)}
+
+  /* primäre Aktion = Taste */
+  .action{margin-top:14px;background:var(--accent);color:var(--acf);
+    font-size:13px;font-weight:700;text-align:center;padding:10px 0;border-radius:2px;cursor:pointer}
+
+  .foot{margin-top:12px;font-size:10px;letter-spacing:.04em;color:#605D55}
+  .foot b{color:var(--accent);font-weight:500}
+
+  /* Ergebnis */
+  .overall{display:flex;align-items:flex-end;justify-content:space-between;margin-top:8px}
+  .overall .big{font-size:48px;font-weight:500;letter-spacing:-.03em;line-height:.85}
+  .overall .ofive{font-size:13px;color:var(--mut);padding-bottom:5px}
+  .bars{margin-top:auto;display:flex;flex-direction:column;gap:9px}
+  .bar .hd{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px}
+  .bar .lb{font-size:11px;font-weight:600;line-height:1;max-width:150px}
+  .bar .vl{font-size:11px;color:var(--mut)}
+  .bar .tr{height:4px;background:var(--line);border-radius:1px;overflow:hidden}
+  .bar .fl{height:4px;background:var(--accent);width:0;transition:width .4s var(--enter)}
+  .bar.dim .fl{background:var(--mut)}
+</style>
+</head>
+<body>
+  <div class="stage">
+    <div class="device">
+      <div class="screen"><div id="app"></div></div>
+      <div class="controls">
+        <div class="wheel" title="Scrollrad"></div>
+        <div class="key" title="Taste"></div>
+      </div>
+    </div>
+    <div class="caption mono">r1 Creation · <b>Skill-Check</b> — aus LevelUp</div>
+  </div>
+
+<script>
+/* ============================================================================
+   SKILL-CHECK — eine r1 Creation, abgeleitet aus der WebApp „LevelUp“.
+   Geht den Kompetenzkatalog Schritt für Schritt durch: das Scrollrad stellt
+   die Entwicklungsstufe 1–5, die Taste bestätigt und blättert weiter. Am Ende
+   die Skill-Matrix in Kleinform (Durchschnitt je Kompetenz-Dimension).
+   Gestaltet im r1-Design-System „Papier“ (Dieter Rams / BRAUN).
+============================================================================ */
+
+// Kompetenzkatalog — 1:1 aus src/data/competencyFramework.ts der WebApp.
+const CATALOG = {"fachkraft":[{"label":"Fachkompetenz","competencies":["Grundpflege & Mobilisation","Behandlungspflege","Medikamentenmanagement","Wundversorgung & -dokumentation","Hygiene & Infektionsschutz","Notfall- & Risikomanagement"]},{"label":"Methodenkompetenz","competencies":["Pflegeprozess & -planung","Pflegedokumentation","Arbeitsorganisation & Delegation"]},{"label":"Sozial-kommunikative Kompetenz","competencies":["Beziehung zu Bewohner:innen","Angehörigenarbeit","Team & Anleitung"]},{"label":"Personale Kompetenz","competencies":["Eigenverantwortung","Belastbarkeit & Resilienz","Lern- & Reflexionsbereitschaft"]}],"hilfskraft":[{"label":"Grundpflege & Unterstützung","competencies":["Körperpflege & Unterstützung","Mobilisation & Lagerung","Ernährung & Flüssigkeit","Hygiene im Alltag"]},{"label":"Beobachten & Melden","competencies":["Beobachten von Veränderungen","Melden & Weitergeben","Korrekte Anwendung des Berichteblattes","Umgang mit Risiken"]},{"label":"Sozial-kommunikative Kompetenz","competencies":["Beziehung & Kommunikation","Umgang mit Angehörigen","Teamarbeit"]},{"label":"Personale Kompetenz","competencies":["Zuverlässigkeit & Pünktlichkeit","Sorgfalt & Hygienebewusstsein","Lernbereitschaft"]}]};
+
+// Entwicklungsskala — 1:1 aus LEVEL_SCALE der WebApp.
+const SCALE = {
+  1:{nm:"Einarbeitung", ds:"Benötigt noch Anleitung und enge Begleitung"},
+  2:{nm:"Grundlagen",   ds:"Führt Aufgaben mit Unterstützung sicher aus"},
+  3:{nm:"Sicher",       ds:"Arbeitet selbstständig und zuverlässig"},
+  4:{nm:"Routiniert",   ds:"Handelt eigenverantwortlich, auch in komplexen Lagen"},
+  5:{nm:"Vorbild",      ds:"Expertenniveau, kann andere anleiten und schulen"},
+};
+const TYPES = [
+  {id:"fachkraft", name:"Fachkraft", sub:"QS 3 · examiniert"},
+  {id:"hilfskraft",name:"Hilfskraft", sub:"Assistenz · Helfer:in"},
+];
+
+const app = document.getElementById("app");
+const esc = s => String(s).replace(/[&<>]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+const pad2 = n => n<10 ? "0"+n : ""+n;
+
+const S = {
+  view:"start",     // start | rate | done
+  typeSel:0,        // Auswahl auf dem Startscreen
+  items:[],         // [{cat, comp}] flachgelegt
+  idx:0,
+  levels:[],        // Stufe je item (1–5)
+};
+
+/* ---------- Ableitungen ---------- */
+function build(typeId){
+  const items = [];
+  for(const cat of CATALOG[typeId])
+    for(const comp of cat.competencies) items.push({cat:cat.label, comp});
+  S.items = items;
+  S.levels = items.map(()=>3); // Start in der Mitte: „Sicher“
+  S.idx = 0;
+}
+function categoryAverages(typeId){
+  // Skill-Matrix in Kleinform: Mittelwert je Kompetenz-Dimension.
+  return CATALOG[typeId].map(cat => {
+    const vals = S.items
+      .map((it,i)=> it.cat===cat.label ? S.levels[i] : null)
+      .filter(v=>v!==null);
+    const avg = vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length : null;
+    return {label:cat.label, avg};
+  });
+}
+function overall(){
+  if(!S.levels.length) return null;
+  return S.levels.reduce((a,b)=>a+b,0)/S.levels.length;
+}
+
+/* ---------- Views ---------- */
+function viewStart(){
+  const rows = TYPES.map((t,i)=>`
+    <div class="row ${i===S.typeSel?"on":""}" data-type="${i}">
+      <div><div class="name">${esc(t.name)}</div><div class="sub">${esc(t.sub)}</div></div>
+      <span class="chev mono">▸</span>
+    </div>`).join("");
+  return `
+    <div class="pane">
+      <div class="top"><span class="eyebrow mono">Skill-Check</span><span class="count mono">LevelUp</span></div>
+      <div class="title">Kompetenz‑Check</div>
+      <div class="lead">Eine Visite, Schritt für Schritt. Welcher Katalog?</div>
+      <div class="pick">${rows}</div>
+      <div class="foot mono"><b>RAD</b> ▸ wählen&nbsp;&nbsp;·&nbsp;&nbsp;<b>TASTE</b> ▸ start</div>
+    </div>`;
+}
+
+function viewRate(){
+  const it = S.items[S.idx];
+  const lvl = S.levels[S.idx];
+  const sc = SCALE[lvl];
+  const last = S.idx === S.items.length-1;
+  const seg = [1,2,3,4,5].map(n=>`<i class="${n<=lvl?"fill":""}"></i>`).join("");
+  return `
+    <div class="pane">
+      <div class="top">
+        <span class="cat mono">${esc(it.cat)}</span>
+        <span class="count mono">${pad2(S.idx+1)} / ${pad2(S.items.length)}</span>
+      </div>
+      <div class="comp">${esc(it.comp)}</div>
+      <div class="valblock">
+        <div class="valrow">
+          <div class="num mono">${lvl}</div>
+          <div class="scale">
+            <div class="nm">${esc(sc.nm)}</div>
+            <div class="ds">${esc(sc.ds)}</div>
+          </div>
+        </div>
+        <div class="seg">${seg}</div>
+        <div class="action" data-act="next">${last?"Auswerten":"Weiter"}</div>
+        <div class="foot mono"><b>RAD</b> ▸ stufe&nbsp;&nbsp;·&nbsp;&nbsp;<b>TASTE</b> ▸ ${last?"fertig":"weiter"}</div>
+      </div>
+    </div>`;
+}
+
+function viewDone(){
+  const t = TYPES[S.typeSel].id;
+  const cats = categoryAverages(t);
+  const ov = overall();
+  const bars = cats.map(c=>{
+    const pct = c.avg ? (c.avg/5*100) : 0;
+    return `
+      <div class="bar">
+        <div class="hd"><span class="lb">${esc(c.label)}</span><span class="vl mono">${c.avg?c.avg.toFixed(1):"–"}</span></div>
+        <div class="tr"><div class="fl" style="width:${pct}%"></div></div>
+      </div>`;
+  }).join("");
+  return `
+    <div class="pane">
+      <div class="top"><span class="eyebrow mono">Ergebnis · ${esc(TYPES[S.typeSel].name)}</span><span class="count mono">Ø 1–5</span></div>
+      <div class="overall">
+        <span class="big mono">${ov?ov.toFixed(1):"–"}</span>
+        <span class="ofive mono">Gesamt</span>
+      </div>
+      <div class="bars">${bars}</div>
+      <div class="foot mono"><b>TASTE</b> ▸ neue Visite</div>
+    </div>`;
+}
+
+function render(){
+  app.innerHTML = S.view==="start" ? viewStart()
+                : S.view==="rate"  ? viewRate()
+                : viewDone();
+}
+
+/* ---------- Eingaben: Scrollrad + Taste ---------- */
+function wheel(dir){ // dir: +1 nach oben/rechts, -1 nach unten/links
+  if(S.view==="start"){
+    S.typeSel = (S.typeSel + (dir>0?-1:1) + TYPES.length) % TYPES.length;
+    render();
+  } else if(S.view==="rate"){
+    const cur = S.levels[S.idx];
+    const next = Math.min(5, Math.max(1, cur + (dir>0?1:-1)));
+    if(next!==cur){ S.levels[S.idx]=next; render(); }
+  }
+}
+function press(){ // Taste / primäre Aktion
+  if(S.view==="start"){
+    build(TYPES[S.typeSel].id);
+    S.view="rate"; render();
+  } else if(S.view==="rate"){
+    if(S.idx < S.items.length-1){ S.idx++; render(); }
+    else { S.view="done"; render(); }
+  } else { // done
+    S.view="start"; render();
+  }
+}
+
+/* ---------- Hardware (rabbit r1) + Vorschau-Fallbacks ---------- */
+// r1-Hardware: Scrollrad & Seitentaste werden als window-Events geliefert.
+window.addEventListener("scrollUp",   ()=>wheel(+1));
+window.addEventListener("scrollDown", ()=>wheel(-1));
+window.addEventListener("sideClick",  press);
+window.addEventListener("longPressEnd", press);
+
+// Desktop-Vorschau: Mausrad, Pfeiltasten, Enter/Leertaste, Klick.
+let acc=0;
+window.addEventListener("wheel", e=>{
+  acc += e.deltaY;
+  if(acc <= -28){ acc=0; wheel(+1); }
+  else if(acc >= 28){ acc=0; wheel(-1); }
+}, {passive:true});
+window.addEventListener("keydown", e=>{
+  if(e.key==="ArrowUp"||e.key==="ArrowRight"){ e.preventDefault(); wheel(+1); }
+  else if(e.key==="ArrowDown"||e.key==="ArrowLeft"){ e.preventDefault(); wheel(-1); }
+  else if(e.key==="Enter"||e.key===" "){ e.preventDefault(); press(); }
+});
+app.addEventListener("click", e=>{
+  const r = e.target.closest("[data-type]");
+  if(r){ S.typeSel = +r.dataset.type; render();
+         if(e.detail>0){ press(); } return; } // Klick auf Zeile = wählen + start
+  if(e.target.closest("[data-act='next']")) press();
+});
+
+render();
+</script>
+</body>
+</html>
