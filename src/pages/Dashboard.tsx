@@ -69,9 +69,12 @@ export default function Dashboard() {
   return (
     <div className="space-y-7">
       <div>
-        <h2 className="text-[1.7rem] font-bold leading-tight text-slate-900">Willkommen</h2>
-        <p className="mt-0.5 text-sm text-slate-500">
-          Begleite dein Team strukturiert in der Entwicklung.
+        <h2 className="display text-[1.9rem] text-slate-900">
+          Willkommen<span className="text-amber-500">.</span>
+        </h2>
+        <p className="mt-1 text-sm text-slate-500">
+          Begleite dein Team <span className="font-serif italic text-brand-600">strukturiert</span>{" "}
+          in der Entwicklung.
         </p>
       </div>
 
@@ -305,10 +308,11 @@ function Stat({
         highlight ? "ring-1 ring-amber-300" : ""
       } ${to ? "hover:shadow-card" : ""}`}
     >
-      <Icon size={18} strokeWidth={2} className={highlight ? "text-amber-500" : "text-brand-500"} />
+      <Icon size={18} strokeWidth={2} className={highlight ? "text-amber-500" : "text-brand-600"} />
       <div>
-        <span className="block text-2xl font-bold leading-none tabular-nums text-slate-900">
+        <span className="num block font-serif text-[1.75rem] font-medium leading-none text-slate-900">
           {value}
+          <span className="text-amber-500">.</span>
         </span>
         <span className="mt-1 block text-xs text-slate-500">{label}</span>
       </div>

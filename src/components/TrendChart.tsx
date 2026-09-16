@@ -6,10 +6,10 @@ export interface TrendPoint {
 }
 
 function levelColor(v: number): string {
-  if (v >= 4) return "#10b981"; // emerald-500
-  if (v >= 3) return "#3b82f6"; // brand-500
-  if (v >= 2) return "#f59e0b"; // amber-500
-  return "#f87171"; // red-400
+  if (v >= 4) return "#2C5F4A"; // Grün – erreicht/positiv
+  if (v >= 3) return "#8B1A4A"; // Berry – Markenakzent
+  if (v >= 2) return "#C5982A"; // Gold
+  return "#B84F30"; // warmes Rostrot
 }
 
 /**
@@ -80,27 +80,27 @@ export default function TrendChart({ points }: { points: TrendPoint[] }) {
               y1={y(lvl)}
               x2={W - padR}
               y2={y(lvl)}
-              stroke="#e2e8f0"
+              stroke="#E7E1D8"
               strokeWidth={1}
             />
-            <text x={padL - 6} y={y(lvl) + 3} textAnchor="end" fontSize={9} fill="#94a3b8">
+            <text x={padL - 6} y={y(lvl) + 3} textAnchor="end" fontSize={9} fill="#A89E93">
               {lvl}
             </text>
           </g>
         ))}
 
         {/* Fläche unter der Linie */}
-        <path d={areaPath} fill="#3b82f6" opacity={0.08} />
+        <path d={areaPath} fill="#8B1A4A" opacity={0.08} />
 
         {/* Trendlinie */}
-        <path d={linePath} fill="none" stroke="#2563eb" strokeWidth={2.5} strokeLinejoin="round" strokeLinecap="round" />
+        <path d={linePath} fill="none" stroke="#8B1A4A" strokeWidth={2.5} strokeLinejoin="round" strokeLinecap="round" />
 
         {/* Punkte + X-Beschriftung */}
         {points.map((p, i) => (
           <g key={i}>
             <circle cx={x(i)} cy={y(p.average)} r={3.5} fill="#fff" stroke={levelColor(p.average)} strokeWidth={2.5} />
             {i % labelEvery === 0 && (
-              <text x={x(i)} y={H - 8} textAnchor="middle" fontSize={8.5} fill="#94a3b8">
+              <text x={x(i)} y={H - 8} textAnchor="middle" fontSize={8.5} fill="#A89E93">
                 {formatDate(p.date).slice(0, 6)}
               </text>
             )}

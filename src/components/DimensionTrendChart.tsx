@@ -1,7 +1,7 @@
 import type { DimensionTrend } from "../lib/analytics";
 import { formatDate } from "../lib/format";
 
-const PALETTE = ["#2563eb", "#10b981", "#f59e0b", "#8b5cf6", "#ec4899", "#0ea5e9"];
+const PALETTE = ["#8B1A4A", "#C5982A", "#2C5F4A", "#A8325F", "#A67D1A", "#6B6259"];
 
 /** Liniendiagramm mit je einer Linie pro Kompetenz-Dimension (1–5 über die Zeit). */
 export default function DimensionTrendChart({ trend }: { trend: DimensionTrend }) {
@@ -45,8 +45,8 @@ export default function DimensionTrendChart({ trend }: { trend: DimensionTrend }
       <svg viewBox={`0 0 ${W} ${H}`} className="w-full" role="img" aria-label="Kompetenz-Verlauf je Dimension">
         {[1, 2, 3, 4, 5].map((lvl) => (
           <g key={lvl}>
-            <line x1={padL} y1={y(lvl)} x2={W - padR} y2={y(lvl)} stroke="#e2e8f0" strokeWidth={1} />
-            <text x={padL - 6} y={y(lvl) + 3} textAnchor="end" fontSize={9} fill="#94a3b8">
+            <line x1={padL} y1={y(lvl)} x2={W - padR} y2={y(lvl)} stroke="#E7E1D8" strokeWidth={1} />
+            <text x={padL - 6} y={y(lvl) + 3} textAnchor="end" fontSize={9} fill="#A89E93">
               {lvl}
             </text>
           </g>
@@ -54,7 +54,7 @@ export default function DimensionTrendChart({ trend }: { trend: DimensionTrend }
 
         {trend.dates.map((d, i) =>
           i % labelEvery === 0 ? (
-            <text key={i} x={x(i)} y={H - 8} textAnchor="middle" fontSize={8.5} fill="#94a3b8">
+            <text key={i} x={x(i)} y={H - 8} textAnchor="middle" fontSize={8.5} fill="#A89E93">
               {formatDate(d).slice(0, 6)}
             </text>
           ) : null,
