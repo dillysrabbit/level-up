@@ -3,13 +3,13 @@ import { useAuth } from "../store/auth";
 
 function Logo() {
   return (
-    <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-500 to-brand-700 shadow-card">
-      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" aria-hidden>
-        <rect x="6" y="13" width="3" height="6" rx="1" fill="white" />
-        <rect x="10.5" y="9" width="3" height="10" rx="1" fill="white" />
-        <rect x="15" y="5" width="3" height="14" rx="1" fill="white" />
-      </svg>
-    </div>
+    <img
+      src="/logo-mark.png"
+      alt=""
+      aria-hidden
+      className="h-14 w-auto select-none"
+      draggable={false}
+    />
   );
 }
 
@@ -66,18 +66,20 @@ export default function Login() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-slate-100 px-5">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-slate-50 px-5">
       <div className="w-full max-w-sm">
-        <div className="mb-8 flex flex-col items-center gap-3 text-center">
+        <div className="mb-8 flex flex-col items-center gap-4 text-center">
           <Logo />
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">LevelUp</h1>
-            <p className="text-sm text-slate-500">Mitarbeitervisiten Pflege</p>
+            <h1 className="display text-3xl text-slate-900">LevelUp</h1>
+            <p className="mt-1.5 text-[0.7rem] font-semibold uppercase tracking-[0.14em] text-slate-400">
+              Mitarbeitervisiten Pflege
+            </p>
           </div>
         </div>
 
         <form onSubmit={handleSubmit} className="card space-y-4 p-5">
-          <h2 className="text-lg font-bold text-slate-900">
+          <h2 className="font-serif text-xl font-medium text-slate-900">
             {mode === "signin" ? "Anmelden" : "Konto anlegen"}
           </h2>
 
@@ -127,10 +129,10 @@ export default function Login() {
           </div>
 
           {error && (
-            <p className="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>
+            <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>
           )}
           {message && (
-            <p className="rounded-xl bg-brand-50 px-3 py-2 text-sm text-brand-700">{message}</p>
+            <p className="rounded-lg bg-brand-50 px-3 py-2 text-sm text-brand-700">{message}</p>
           )}
 
           <button type="submit" className="btn-primary w-full py-3" disabled={busy}>

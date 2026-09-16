@@ -11,7 +11,7 @@ export function Avatar({ name, size = "md" }: { name: string; size?: "sm" | "md"
   };
   return (
     <div
-      className={`flex shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-brand-700 font-semibold text-white shadow-sm ${sizes[size]}`}
+      className={`flex shrink-0 items-center justify-center rounded-full border border-brand-100 bg-brand-50 font-serif font-medium text-brand-700 ${sizes[size]}`}
     >
       {initials(name) || "?"}
     </div>
@@ -43,7 +43,7 @@ export function PageHeader({
       )}
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <h2 className="text-[1.7rem] font-bold leading-tight text-slate-900">{title}</h2>
+          <h2 className="display text-[1.9rem] text-slate-900">{title}</h2>
           {subtitle && <p className="mt-0.5 text-sm text-slate-500">{subtitle}</p>}
         </div>
         {action && <div className="shrink-0 pt-1">{action}</div>}
@@ -66,7 +66,7 @@ export function EmptyState({
   return (
     <div className="card flex flex-col items-center gap-3 px-6 py-12 text-center">
       {icon && (
-        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100 text-slate-400">
+        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-slate-100 text-slate-400">
           {icon}
         </div>
       )}

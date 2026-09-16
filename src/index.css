@@ -2,16 +2,31 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Health-Angels-Look "Paper & Ink": warmes Papierweiß, Ink-Text, ein
+   Brombeer-Akzent, Newsreader-Serifen für Headlines, Haarlinien statt
+   schwerer Boxen, Pills für Buttons und Chips. */
+
 @layer base {
   html {
     -webkit-text-size-adjust: 100%;
   }
   body {
-    @apply bg-slate-100 text-slate-900 antialiased;
+    @apply bg-slate-50 text-slate-900 antialiased;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+  ::selection {
+    @apply bg-brand-600 text-white;
   }
   h1, h2, h3 {
     @apply tracking-tight;
+  }
+  /* Headlines: editoriale Serife, ruhig gesetzt */
+  .display {
+    @apply font-serif font-medium leading-[1.05] tracking-[-0.015em];
+  }
+  /* Große Zahlen immer tabellarisch */
+  .num {
+    font-variant-numeric: tabular-nums;
   }
   /* iOS: dezent angenehmere Tap-Highlights */
   button, a {
@@ -22,16 +37,16 @@
 @layer components {
   /* Wiederverwendbare UI-Bausteine, mobil-optimiert (große Touch-Flächen). */
   .card {
-    @apply rounded-2xl border border-slate-200/80 bg-white shadow-soft;
+    @apply rounded-xl border border-slate-200 bg-white;
   }
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition active:scale-[0.98] disabled:pointer-events-none disabled:opacity-40;
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition active:scale-[0.98] disabled:pointer-events-none disabled:opacity-40;
   }
   .btn-primary {
-    @apply btn bg-brand-600 text-white shadow-sm hover:bg-brand-700;
+    @apply btn bg-brand-600 text-white hover:bg-brand-700 hover:shadow-card;
   }
   .btn-secondary {
-    @apply btn border border-slate-200 bg-white text-slate-700 hover:bg-slate-50;
+    @apply btn border border-slate-300 bg-white text-slate-800 hover:border-slate-900;
   }
   .btn-ghost {
     @apply btn text-slate-500 hover:bg-slate-100;
@@ -40,7 +55,7 @@
     @apply btn border border-red-200 bg-white text-red-600 hover:bg-red-50;
   }
   .input {
-    @apply w-full min-w-0 max-w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-base text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-100;
+    @apply w-full min-w-0 max-w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-base text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-brand-600 focus:ring-4 focus:ring-brand-600/10;
   }
   /* iOS: native date-/time-Felder haben eine Mindestbreite – hier neutralisieren */
   input[type="date"].input,
@@ -48,12 +63,13 @@
     @apply box-border appearance-none;
   }
   .label {
-    @apply mb-1.5 block text-sm font-medium text-slate-600;
+    @apply mb-1.5 block text-sm font-medium text-slate-500;
   }
   .chip {
     @apply inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium;
   }
+  /* Eyebrow/Kicker: uppercase, gesperrt, im Akzent */
   .section-title {
-    @apply mb-2.5 text-xs font-semibold uppercase tracking-wider text-slate-400;
+    @apply mb-2.5 text-[0.7rem] font-semibold uppercase tracking-[0.14em] text-brand-600;
   }
 }

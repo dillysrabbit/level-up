@@ -17,18 +17,19 @@ const OCCASION_LABELS: Record<string, string> = {
   jahresgespraech: "Jahresgespräch",
 };
 
+// Health-Angels-Palette: Berry, Gold, ruhiges Grün + warme Ink-Töne
 const PALETTE: [number, number, number][] = [
-  [37, 99, 235],
-  [16, 185, 129],
-  [245, 158, 11],
-  [139, 92, 246],
-  [236, 72, 153],
-  [14, 165, 233],
+  [139, 26, 74], // Berry #8B1A4A
+  [197, 152, 42], // Gold #C5982A
+  [44, 95, 74], // Grün #2C5F4A
+  [168, 50, 95], // Berry hell #A8325F
+  [166, 125, 26], // Gold dunkel #A67D1A
+  [107, 98, 89], // Ink soft #6B6259
 ];
 
-const SLATE: [number, number, number] = [51, 65, 85];
-const MUTED: [number, number, number] = [120, 134, 150];
-const BRAND: [number, number, number] = [37, 99, 235];
+const SLATE: [number, number, number] = [33, 27, 24]; // Ink #211B18
+const MUTED: [number, number, number] = [107, 98, 89]; // Ink soft #6B6259
+const BRAND: [number, number, number] = [139, 26, 74]; // Berry #8B1A4A
 
 // Standard-Schriften (Helvetica) bilden typografische Sonderzeichen nicht zuverlässig ab –
 // daher auf ASCII-nahe Varianten normalisieren (Umlaute/ß bleiben erhalten).
@@ -41,10 +42,10 @@ function sanitize(text: string): string {
 }
 
 function levelColor(v: number): [number, number, number] {
-  if (v >= 4) return [16, 185, 129];
-  if (v >= 3) return [59, 130, 246];
-  if (v >= 2) return [245, 158, 11];
-  return [248, 113, 113];
+  if (v >= 4) return [44, 95, 74]; // Grün – erreicht/positiv
+  if (v >= 3) return [139, 26, 74]; // Berry
+  if (v >= 2) return [197, 152, 42]; // Gold
+  return [184, 79, 48]; // warmes Rostrot
 }
 
 /** Bündelt jsPDF + Layout-Helfer mit fortlaufendem Cursor. */
@@ -64,7 +65,7 @@ function makeRenderer(doc: jsPDF) {
   };
 
   function header(title: string) {
-    doc.setFillColor(37, 99, 235);
+    doc.setFillColor(139, 26, 74);
     doc.rect(0, 0, pageW, 64, "F");
     doc.setTextColor(255, 255, 255);
     doc.setFont("helvetica", "bold");
@@ -115,7 +116,7 @@ function makeRenderer(doc: jsPDF) {
     doc.setFontSize(11);
     doc.text(sanitize(text), margin, y);
     y += 6;
-    doc.setDrawColor(226, 232, 240);
+    doc.setDrawColor(231, 225, 216);
     doc.setLineWidth(0.75);
     doc.line(margin, y, pageW - margin, y);
     y += 12;
@@ -170,9 +171,9 @@ function makeRenderer(doc: jsPDF) {
       doc.setFont("helvetica", "bold");
       doc.text(`${s.average.toFixed(1)} / 5`, pageW - margin, y, { align: "right" });
       const barY = y + 4;
-      doc.setFillColor(226, 232, 240);
+      doc.setFillColor(243, 239, 232);
       doc.rect(margin, barY, contentW, 5, "F");
-      doc.setFillColor(37, 99, 235);
+      doc.setFillColor(139, 26, 74);
       doc.rect(margin, barY, (contentW * s.average) / 5, 5, "F");
       y += 22;
     }
@@ -225,7 +226,7 @@ function makeRenderer(doc: jsPDF) {
     const X = (i: number) => (n === 1 ? (left + right) / 2 : left + ((right - left) * i) / (n - 1));
     const Y = (v: number) => top + (bottom - top) * (1 - (v - 1) / 4);
 
-    doc.setDrawColor(226, 232, 240);
+    doc.setDrawColor(231, 225, 216);
     doc.setLineWidth(0.75);
     doc.setFontSize(8);
     setColor(MUTED);
@@ -247,7 +248,7 @@ function makeRenderer(doc: jsPDF) {
       return;
     }
     const f = plotFrame(points.map((p) => p.date), 150);
-    doc.setDrawColor(37, 99, 235);
+    doc.setDrawColor(139, 26, 74);
     doc.setLineWidth(2);
     for (let i = 1; i < points.length; i++) {
       doc.line(f.X(i - 1), f.Y(points[i - 1].average), f.X(i), f.Y(points[i].average));
@@ -320,7 +321,7 @@ function makeRenderer(doc: jsPDF) {
   function signatures() {
     ensure(50);
     y += 14;
-    doc.setDrawColor(150, 160, 175);
+    doc.setDrawColor(216, 208, 196);
     doc.setLineWidth(0.75);
     const colW = (contentW - 30) / 2;
     doc.line(margin, y, margin + colW, y);
