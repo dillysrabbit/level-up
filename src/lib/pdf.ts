@@ -1,6 +1,5 @@
 import { jsPDF } from "jspdf";
 import type { Employee, Note, Visit } from "../types";
-import { sharePdf } from "./backup";
 import {
   categoryScores,
   overallAverage,
@@ -367,12 +366,6 @@ function safeFile(name: string | undefined): string {
   return (name ?? "Mitarbeiter").replace(/[^\p{L}\p{N}]+/gu, "_");
 }
 
-/** Gibt das PDF aus: Download im Browser, Share-Sheet in der nativen App. */
-function outputPdf(doc: jsPDF, fileName: string): void {
-  const base64 = doc.output("datauristring").split(",")[1] ?? "";
-  void sharePdf(base64, fileName, () => doc.save(fileName));
-}
-
 /** Einzelne Visite als PDF-Protokoll. */
 export function exportVisitPdf(visit: Visit, employee: Employee | undefined): void {
   const doc = new jsPDF({ unit: "pt", format: "a4" });
@@ -389,7 +382,7 @@ export function exportVisitPdf(visit: Visit, employee: Employee | undefined): vo
   r.competencyProfile(visit);
   r.signatures();
   r.footer();
-  outputPdf(doc, `Visite_${safeFile(employee?.name)}_${visit.date}.pdf`);
+  doc.save(`Visite_${safeFile(employee?.name)}_${visit.date}.pdf`);
 }
 
 /** Sammel-Export: alle Visiten einer Person als zusammenhängender Bericht inkl. Verlauf. */
@@ -440,5 +433,5 @@ export function exportEmployeePdf(
   }
 
   r.footer();
-  outputPdf(doc, `Visiten-Bericht_${safeFile(employee?.name)}.pdf`);
+  doc.save(`Visiten-Bericht_${safeFile(employee?.name)}.pdf`);
 }

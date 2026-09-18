@@ -17,12 +17,25 @@ können.
 
 ## Daten & Datenschutz
 
-Die Daten liegen **ausschließlich lokal auf dem Gerät** – es gibt keinen Cloud-Sync und kein
-Konto. In der iOS-App werden sie als JSON-Datei im App-Dokumentenverzeichnis gespeichert (und
-damit vom normalen iPhone-Backup mitgesichert), im Browser im localStorage. Die native App ist
-zusätzlich per **Face ID / Geräte-Code** gesperrt (abschaltbar in den Einstellungen). Über
-**Einstellungen → Backup** lässt sich der Bestand als JSON exportieren/importieren – das ist auch
-der Weg, um Daten auf ein anderes Gerät zu übertragen.
+Die Daten werden **geräteübergreifend** in einer Supabase-Postgres-Datenbank in der **EU
+(Frankfurt)** gespeichert. Der Zugriff ist nur **nach Anmeldung** möglich und über
+**Row-Level-Security (RLS)** abgesichert: Nur authentifizierte Nutzer:innen erreichen die Daten,
+anonyme Zugriffe sind vollständig gesperrt. Alle angemeldeten Geräte teilen sich denselben
+Datenbestand. Über **Einstellungen → Backup** lässt sich der Bestand als JSON exportieren/importieren.
+
+Der im Client hinterlegte `publishable`-Key ist – wie von Supabase vorgesehen – zur Veröffentlichung
+bestimmt; der Schutz erfolgt über RLS, nicht über Geheimhaltung des Keys. Der `service_role`-Key
+wird nie im Client verwendet.
+
+### Konfiguration
+
+Standardmäßig sind Projekt-URL und publishable Key in `src/lib/supabase.ts` hinterlegt. Optional
+lassen sie sich per Umgebungsvariablen überschreiben (z.B. in `.env` oder bei Vercel):
+
+```
+VITE_SUPABASE_URL=...
+VITE_SUPABASE_ANON_KEY=...
+```
 
 ## Entwicklung
 
@@ -33,33 +46,17 @@ npm run build    # Produktions-Build (statische Dateien in /dist)
 npm run lint     # TypeScript-Typprüfung
 ```
 
-## iOS-App (Capacitor)
-
-Die Web-App ist per [Capacitor](https://capacitorjs.com) als native iOS-App verpackt
-(`ios/`-Ordner, Xcode-Projekt). Auf dem Mac:
-
-```bash
-npm install
-npm run build
-npx cap sync ios     # Web-Build in das iOS-Projekt kopieren
-npx cap open ios     # Projekt in Xcode öffnen
-```
-
-In Xcode unter *Signing & Capabilities* das eigene Apple-Team wählen, dann auf Simulator oder
-iPhone starten. Nach jeder Code-Änderung: `npm run build && npx cap sync ios`.
-
 ## Technik
 
-React + TypeScript + Vite + Tailwind CSS + Capacitor. Die Datenschicht ist gekapselt
+React + TypeScript + Vite + Tailwind CSS. Die Datenschicht ist gekapselt
 (`src/store/`), sodass später bei Bedarf ein Backend (z.B. für Mehrgeräte-Sync)
 ergänzt werden kann.
 
 ```
 src/
 ├── data/competencyFramework.ts   # Pflege-Kompetenzmodell + Bewertungsskala
-├── store/                        # lokale Persistenz (Datei/localStorage) + React-Store
-├── lib/                          # Formatierung, Auswertungen, PDF, App-Sperre
+├── store/                        # lokale Persistenz (localStorage) + React-Store
+├── lib/                          # Formatierung & Auswertungen (Skill-Matrix)
 ├── components/                   # wiederverwendbare UI-Bausteine
-├── pages/                        # Dashboard, Team, Visite, Einstellungen
-ios/                              # natives Xcode-Projekt (Capacitor)
+└── pages/                        # Dashboard, Team, Visite, Einstellungen
 ```

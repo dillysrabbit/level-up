@@ -4,13 +4,12 @@ import {
   useContext,
   useEffect,
   useMemo,
-  useRef,
   useState,
   type ReactNode,
 } from "react";
 import type { AppData, Employee, Goal, Note, SmokeBreak, Visit } from "../types";
 import { emptyData, uid } from "./storage";
-import { loadPersisted, persist } from "./persistence";
+import { supabase } from "../lib/supabase";
 
 interface StoreContextValue {
   data: AppData;
@@ -54,27 +53,159 @@ interface StoreContextValue {
 
 const StoreContext = createContext<StoreContextValue | null>(null);
 
+/* ---------- Mapping DB (snake_case) <-> App (camelCase) ---------- */
+
+type Row = Record<string, unknown>;
+
+const toEmployee = (r: Row): Employee => ({
+  id: r.id as string,
+  name: r.name as string,
+  role: (r.role as string) ?? "",
+  area: (r.area as string) ?? "",
+  notes: (r.notes as string) ?? "",
+  createdAt: r.created_at as string,
+});
+
+const toVisit = (r: Row): Visit => ({
+  id: r.id as string,
+  employeeId: r.employee_id as string,
+  visitType: (r.visit_type as Visit["visitType"]) ?? "fachkraft",
+  date: r.date as string,
+  location: (r.location as string) ?? "",
+  occasion: (r.occasion as Visit["occasion"]) ?? "routine",
+  observations: (r.observations as string) ?? "",
+  strengths: (r.strengths as string) ?? "",
+  developmentAreas: (r.development_areas as string) ?? "",
+  ratings: (r.ratings as Visit["ratings"]) ?? [],
+  summary: (r.summary as string) ?? "",
+  createdAt: r.created_at as string,
+});
+
+const toGoal = (r: Row): Goal => ({
+  id: r.id as string,
+  employeeId: r.employee_id as string,
+  visitId: (r.visit_id as string) ?? undefined,
+  title: r.title as string,
+  category: (r.category as string) ?? "",
+  measures: (r.measures as string) ?? "",
+  dueDate: (r.due_date as string) ?? undefined,
+  status: (r.status as Goal["status"]) ?? "offen",
+  progress: (r.progress as number) ?? 0,
+  createdAt: r.created_at as string,
+});
+
+const toNote = (r: Row): Note => ({
+  id: r.id as string,
+  employeeId: r.employee_id as string,
+  text: (r.text as string) ?? "",
+  createdAt: r.created_at as string,
+});
+
+const employeeRow = (e: Employee) => ({
+  id: e.id,
+  name: e.name,
+  role: e.role,
+  area: e.area,
+  notes: e.notes ?? "",
+  created_at: e.createdAt,
+});
+
+const visitRow = (v: Visit) => ({
+  id: v.id,
+  employee_id: v.employeeId,
+  visit_type: v.visitType,
+  date: v.date,
+  location: v.location,
+  occasion: v.occasion,
+  observations: v.observations,
+  strengths: v.strengths,
+  development_areas: v.developmentAreas,
+  ratings: v.ratings,
+  summary: v.summary,
+  created_at: v.createdAt,
+});
+
+const noteRow = (n: Note) => ({
+  id: n.id,
+  employee_id: n.employeeId,
+  text: n.text,
+  created_at: n.createdAt,
+});
+
+const toSmokeBreak = (r: Row): SmokeBreak => ({
+  id: r.id as string,
+  employeeId: r.employee_id as string,
+  createdAt: r.created_at as string,
+});
+
+const smokeBreakRow = (s: SmokeBreak) => ({
+  id: s.id,
+  employee_id: s.employeeId,
+  created_at: s.createdAt,
+});
+
+const goalRow = (g: Goal) => ({
+  id: g.id,
+  employee_id: g.employeeId,
+  visit_id: g.visitId ?? null,
+  title: g.title,
+  category: g.category,
+  measures: g.measures,
+  due_date: g.dueDate || null,
+  status: g.status,
+  progress: g.progress,
+  created_at: g.createdAt,
+});
+
+// camelCase-Patch -> snake_case-Spalten (nur für Updates relevante Felder)
+const COLUMN_MAP: Record<string, string> = {
+  employeeId: "employee_id",
+  visitId: "visit_id",
+  visitType: "visit_type",
+  developmentAreas: "development_areas",
+  dueDate: "due_date",
+  createdAt: "created_at",
+};
+function patchToRow(patch: Record<string, unknown>): Row {
+  const row: Row = {};
+  for (const [k, v] of Object.entries(patch)) {
+    const col = COLUMN_MAP[k] ?? k;
+    row[col] = col === "due_date" ? (v || null) : v;
+  }
+  return row;
+}
+
 /* ---------- Provider ---------- */
 
 export function StoreProvider({ children }: { children: ReactNode }) {
   const [data, setData] = useState<AppData>({ ...emptyData });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  // Erst nach dem initialen Laden speichern, sonst würde ein leerer Zustand
-  // den vorhandenen Datenbestand überschreiben.
-  const readyRef = useRef(false);
 
   const reload = useCallback(async () => {
     setLoading(true);
     setError(null);
-    readyRef.current = false;
-    try {
-      setData(await loadPersisted());
-    } catch (err) {
-      console.error("LevelUp: Daten konnten nicht geladen werden.", err);
-      setError("Daten konnten nicht geladen werden.");
+    const [emp, vis, gol, not, smk] = await Promise.all([
+      supabase.from("employees").select("*"),
+      supabase.from("visits").select("*"),
+      supabase.from("goals").select("*"),
+      supabase.from("notes").select("*"),
+      supabase.from("smoke_breaks").select("*"),
+    ]);
+    const firstError = emp.error || vis.error || gol.error || not.error || smk.error;
+    if (firstError) {
+      setError(firstError.message);
+      setLoading(false);
+      return;
     }
-    readyRef.current = true;
+    setData({
+      version: 1,
+      employees: (emp.data ?? []).map(toEmployee),
+      visits: (vis.data ?? []).map(toVisit),
+      goals: (gol.data ?? []).map(toGoal),
+      notes: (not.data ?? []).map(toNote),
+      smokeBreaks: (smk.data ?? []).map(toSmokeBreak),
+    });
     setLoading(false);
   }, []);
 
@@ -82,19 +213,19 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     reload();
   }, [reload]);
 
-  // Jede Änderung landet direkt auf dem Gerät.
-  useEffect(() => {
-    if (!readyRef.current) return;
-    persist(data).catch((err) => {
-      console.error("LevelUp: Daten konnten nicht gespeichert werden.", err);
-      setError("Daten konnten nicht gespeichert werden – Speicherplatz prüfen.");
-    });
-  }, [data]);
+  const fail = (ctx: string) => (res: { error: { message: string } | null }) => {
+    if (res.error) {
+      console.error(`LevelUp: ${ctx} fehlgeschlagen.`, res.error);
+      setError(res.error.message);
+      reload(); // Zustand mit DB resynchronisieren
+    }
+  };
 
   /* Mitarbeiter */
   const addEmployee = useCallback((input: Omit<Employee, "id" | "createdAt">) => {
     const employee: Employee = { ...input, id: uid(), createdAt: new Date().toISOString() };
     setData((d) => ({ ...d, employees: [...d.employees, employee] }));
+    supabase.from("employees").insert(employeeRow(employee)).then(fail("Mitarbeiter anlegen"));
     return employee;
   }, []);
 
@@ -103,6 +234,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       ...d,
       employees: d.employees.map((e) => (e.id === id ? { ...e, ...patch } : e)),
     }));
+    supabase.from("employees").update(patchToRow(patch)).eq("id", id).then(fail("Mitarbeiter aktualisieren"));
   }, []);
 
   const deleteEmployee = useCallback((id: string) => {
@@ -114,74 +246,105 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       notes: d.notes.filter((n) => n.employeeId !== id),
       smokeBreaks: d.smokeBreaks.filter((s) => s.employeeId !== id),
     }));
+    // visits/goals/notes/smoke_breaks werden per ON DELETE CASCADE in der DB mitgelöscht
+    supabase.from("employees").delete().eq("id", id).then(fail("Mitarbeiter löschen"));
   }, []);
 
   /* Visiten */
   const addVisit = useCallback((input: Omit<Visit, "id" | "createdAt">) => {
     const visit: Visit = { ...input, id: uid(), createdAt: new Date().toISOString() };
     setData((d) => ({ ...d, visits: [...d.visits, visit] }));
+    supabase.from("visits").insert(visitRow(visit)).then(fail("Visite speichern"));
     return visit;
   }, []);
 
   const updateVisit = useCallback((id: string, patch: Partial<Visit>) => {
     setData((d) => ({ ...d, visits: d.visits.map((v) => (v.id === id ? { ...v, ...patch } : v)) }));
+    supabase.from("visits").update(patchToRow(patch)).eq("id", id).then(fail("Visite aktualisieren"));
   }, []);
 
   const deleteVisit = useCallback((id: string) => {
     setData((d) => ({ ...d, visits: d.visits.filter((v) => v.id !== id) }));
+    supabase.from("visits").delete().eq("id", id).then(fail("Visite löschen"));
   }, []);
 
   /* Ziele */
   const addGoal = useCallback((input: Omit<Goal, "id" | "createdAt">) => {
     const goal: Goal = { ...input, id: uid(), createdAt: new Date().toISOString() };
     setData((d) => ({ ...d, goals: [...d.goals, goal] }));
+    supabase.from("goals").insert(goalRow(goal)).then(fail("Ziel anlegen"));
     return goal;
   }, []);
 
   const updateGoal = useCallback((id: string, patch: Partial<Goal>) => {
     setData((d) => ({ ...d, goals: d.goals.map((g) => (g.id === id ? { ...g, ...patch } : g)) }));
+    supabase.from("goals").update(patchToRow(patch)).eq("id", id).then(fail("Ziel aktualisieren"));
   }, []);
 
   const deleteGoal = useCallback((id: string) => {
     setData((d) => ({ ...d, goals: d.goals.filter((g) => g.id !== id) }));
+    supabase.from("goals").delete().eq("id", id).then(fail("Ziel löschen"));
   }, []);
 
   /* Notizen */
   const addNote = useCallback((input: Omit<Note, "id" | "createdAt">) => {
     const note: Note = { ...input, id: uid(), createdAt: new Date().toISOString() };
     setData((d) => ({ ...d, notes: [...d.notes, note] }));
+    supabase.from("notes").insert(noteRow(note)).then(fail("Notiz speichern"));
     return note;
   }, []);
 
   const updateNote = useCallback((id: string, patch: Partial<Note>) => {
     setData((d) => ({ ...d, notes: d.notes.map((n) => (n.id === id ? { ...n, ...patch } : n)) }));
+    supabase.from("notes").update(patchToRow(patch)).eq("id", id).then(fail("Notiz aktualisieren"));
   }, []);
 
   const deleteNote = useCallback((id: string) => {
     setData((d) => ({ ...d, notes: d.notes.filter((n) => n.id !== id) }));
+    supabase.from("notes").delete().eq("id", id).then(fail("Notiz löschen"));
   }, []);
 
   /* Raucherpausen */
   const addSmokeBreak = useCallback((employeeId: string) => {
     const entry: SmokeBreak = { id: uid(), employeeId, createdAt: new Date().toISOString() };
     setData((d) => ({ ...d, smokeBreaks: [...d.smokeBreaks, entry] }));
+    supabase.from("smoke_breaks").insert(smokeBreakRow(entry)).then(fail("Raucherpause speichern"));
     return entry;
   }, []);
 
   const deleteSmokeBreak = useCallback((id: string) => {
     setData((d) => ({ ...d, smokeBreaks: d.smokeBreaks.filter((s) => s.id !== id) }));
+    supabase.from("smoke_breaks").delete().eq("id", id).then(fail("Raucherpause löschen"));
   }, []);
 
-  /* Verwaltung (Backup-Import / Zurücksetzen) */
-  const replaceAll = useCallback(async (next: AppData) => {
-    setData({ ...next });
-    await persist(next);
-  }, []);
+  const replaceAll = useCallback(
+    async (next: AppData) => {
+      // Backup-Import: vorhandene Daten ersetzen
+      await supabase.from("smoke_breaks").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+      await supabase.from("notes").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+      await supabase.from("goals").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+      await supabase.from("visits").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+      await supabase.from("employees").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+      if (next.employees.length)
+        await supabase.from("employees").insert(next.employees.map(employeeRow));
+      if (next.visits.length) await supabase.from("visits").insert(next.visits.map(visitRow));
+      if (next.goals.length) await supabase.from("goals").insert(next.goals.map(goalRow));
+      if (next.notes?.length) await supabase.from("notes").insert(next.notes.map(noteRow));
+      if (next.smokeBreaks?.length)
+        await supabase.from("smoke_breaks").insert(next.smokeBreaks.map(smokeBreakRow));
+      await reload();
+    },
+    [reload],
+  );
 
   const resetAll = useCallback(async () => {
-    setData({ ...emptyData });
-    await persist({ ...emptyData });
-  }, []);
+    await supabase.from("smoke_breaks").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+    await supabase.from("notes").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+    await supabase.from("goals").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+    await supabase.from("visits").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+    await supabase.from("employees").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+    await reload();
+  }, [reload]);
 
   const value = useMemo<StoreContextValue>(
     () => ({

@@ -1,58 +1,65 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import { App as CapApp } from "@capacitor/app";
+import { useEffect, useState } from "react";
 import App from "./App";
+import Login from "./pages/Login";
+import { useAuth } from "./store/auth";
 import { StoreProvider } from "./store/store";
-import { isLockEnabled, isNativeApp, unlock } from "./lib/applock";
+import { supabase } from "./lib/supabase";
 
-function LockScreen({ onUnlock }: { onUnlock: () => void }) {
-  const [busy, setBusy] = useState(false);
-
-  const tryUnlock = useCallback(async () => {
-    setBusy(true);
-    const ok = await unlock();
-    setBusy(false);
-    if (ok) onUnlock();
-  }, [onUnlock]);
-
-  // Beim Anzeigen direkt Face ID anstoßen – der Button bleibt als Wiederholung.
-  useEffect(() => {
-    tryUnlock();
-  }, [tryUnlock]);
-
+function Splash() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center gap-6 bg-slate-50 px-6 text-center">
-      <img src="/logo-mark.png" alt="" aria-hidden className="h-16 w-auto select-none" draggable={false} />
+    <div className="flex min-h-screen items-center justify-center bg-slate-50">
+      <div className="h-8 w-8 animate-spin rounded-full border-2 border-slate-300 border-t-brand-600" />
+    </div>
+  );
+}
+
+function AccessDenied({ email, onSignOut }: { email?: string; onSignOut: () => void }) {
+  return (
+    <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-slate-50 px-6 text-center">
+      <div className="flex h-14 w-14 items-center justify-center rounded-full border border-amber-100 bg-amber-50 text-amber-600">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+          <rect x="4.5" y="10.5" width="15" height="9.5" rx="2" />
+          <path d="M8 10.5V7.5a4 4 0 0 1 8 0v3" />
+        </svg>
+      </div>
       <div>
-        <h1 className="display text-3xl text-slate-900">LevelUp</h1>
-        <p className="mt-1.5 text-[0.7rem] font-semibold uppercase tracking-[0.14em] text-slate-400">
-          Gesperrt
+        <h1 className="font-serif text-2xl font-medium text-slate-900">Kein Zugriff</h1>
+        <p className="mt-1 max-w-sm text-sm leading-relaxed text-slate-500">
+          Das Konto <span className="font-medium text-slate-700">{email}</span> ist nicht für
+          LevelUp freigegeben. Bitte wende dich an die Administration, um freigeschaltet zu werden.
         </p>
       </div>
-      <button className="btn-primary" onClick={tryUnlock} disabled={busy}>
-        {busy ? "Bitte warten…" : "Mit Face ID entsperren"}
+      <button className="btn-secondary" onClick={onSignOut}>
+        Abmelden
       </button>
     </div>
   );
 }
 
-/** Schützt die App in der nativen Version per Face ID / Geräte-Code. */
+/** Entscheidet anhand von Session und Freigabe, ob Login, Sperrhinweis oder die App erscheint. */
 export default function Root() {
-  const [locked, setLocked] = useState(() => isLockEnabled());
-  const lockedRef = useRef(locked);
-  lockedRef.current = locked;
+  const { session, loading, signOut } = useAuth();
+  const [allowed, setAllowed] = useState<"checking" | "yes" | "no">("checking");
 
-  // Beim Wechsel in den Hintergrund wieder sperren.
   useEffect(() => {
-    if (!isNativeApp()) return;
-    const sub = CapApp.addListener("appStateChange", ({ isActive }) => {
-      if (!isActive && isLockEnabled() && !lockedRef.current) setLocked(true);
+    if (!session) {
+      setAllowed("checking");
+      return;
+    }
+    let active = true;
+    supabase.rpc("is_allowed_user").then(({ data, error }) => {
+      if (!active) return;
+      setAllowed(!error && data === true ? "yes" : "no");
     });
     return () => {
-      sub.then((s) => s.remove());
+      active = false;
     };
-  }, []);
+  }, [session]);
 
-  if (locked) return <LockScreen onUnlock={() => setLocked(false)} />;
+  if (loading) return <Splash />;
+  if (!session) return <Login />;
+  if (allowed === "checking") return <Splash />;
+  if (allowed === "no") return <AccessDenied email={session.user.email} onSignOut={signOut} />;
 
   return (
     <StoreProvider>
