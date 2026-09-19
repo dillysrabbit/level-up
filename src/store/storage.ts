@@ -1,4 +1,5 @@
 import type { AppData } from "../types";
+import { deliverFile } from "../lib/download";
 
 const STORAGE_KEY = "levelup.data.v1";
 const CURRENT_VERSION = 1;
@@ -49,16 +50,11 @@ export function uid(): string {
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
-/** Exportiert die Daten als herunterladbare JSON-Datei (Backup). */
-export function exportData(data: AppData): void {
+/** Exportiert die Daten als JSON-Backup (Share-Sheet auf iOS, sonst Download). */
+export function exportData(data: AppData): Promise<void> {
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
   const stamp = new Date().toISOString().slice(0, 10);
-  a.href = url;
-  a.download = `levelup-backup-${stamp}.json`;
-  a.click();
-  URL.revokeObjectURL(url);
+  return deliverFile(blob, `levelup-backup-${stamp}.json`);
 }
 
 /** Liest und validiert eine importierte Backup-Datei. */

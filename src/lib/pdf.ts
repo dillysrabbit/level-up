@@ -9,6 +9,7 @@ import {
 } from "./analytics";
 import { findCompetency, LEVEL_SCALE, visitTypeLabel } from "../data/competencyFramework";
 import { formatDate, formatDateTime } from "./format";
+import { deliverFile } from "./download";
 
 const OCCASION_LABELS: Record<string, string> = {
   routine: "Routine",
@@ -382,7 +383,7 @@ export function exportVisitPdf(visit: Visit, employee: Employee | undefined): vo
   r.competencyProfile(visit);
   r.signatures();
   r.footer();
-  doc.save(`Visite_${safeFile(employee?.name)}_${visit.date}.pdf`);
+  void deliverFile(doc.output("blob"), `Visite_${safeFile(employee?.name)}_${visit.date}.pdf`);
 }
 
 /** Sammel-Export: alle Visiten einer Person als zusammenhängender Bericht inkl. Verlauf. */
@@ -433,5 +434,5 @@ export function exportEmployeePdf(
   }
 
   r.footer();
-  doc.save(`Visiten-Bericht_${safeFile(employee?.name)}.pdf`);
+  void deliverFile(doc.output("blob"), `Visiten-Bericht_${safeFile(employee?.name)}.pdf`);
 }
